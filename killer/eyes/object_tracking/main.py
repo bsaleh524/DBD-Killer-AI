@@ -7,7 +7,7 @@ from ultralytics import YOLO
 from tracker import Tracker
 
 #TODO: install gpu version
-video_path = os.path.join('.', 'data', 'huntress_chase.mp4')
+video_path = os.path.join('.', 'data', 'videos', 'people.mp4')
 video_out_path = os.path.join('.', 'out.mp4')
 
 cap = cv2.VideoCapture(video_path)

@@ -1,2 +1,159 @@
 .mp4 filter=lfs diff=lfs merge=lfs -text
 # .npy filter=lfs diff=lfs merge=lfs -text
+
+    1  ls -ltr
+    2  git status
+    3  /bin/zsh
+    4  exit
+    5  ls -ltr
+    6  test -t 1
+    7  test --help
+    8  ls
+    9  test
+   10  echo
+   11  vi .bashrc
+   12  # Add powerlevel10k to the list of Oh My Zsh themes.\ngit clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k\n# Replace ZSH_THEME="powerlevel9k/powerlevel9k" with ZSH_THEME="powerlevel10k/powerlevel10k".\nsed -i.bak 's/powerlevel9k/powerlevel10k/g' ~/.zshrc\n# Restart Zsh.\nexec zsh
+   13  cat ~/.zshrc
+   14  p10k configure
+   15  vi ~/.zshrc
+   16  exit
+   17  ls -tlr
+   18  eval "$(/Users/mreag/miniconda/bin/conda shell.zsh hook)"
+   19  history
+   20  bash ~/miniconda.sh -b -p $HOME/miniconda
+   21  bash ~/miniconda.sh -b -p $HOME/miniconda -u
+   22  ~/miniconda/bin/conda init zsh
+   23  conda
+   24  conda --version
+   25  conda update conda
+   26  conda search python
+   27  ls -lte
+   28  ls -ltr
+   29  cd
+   30  ls -ltr
+   31  mkdir gitrepos
+   32  cd gitrepos
+   33  conda create --name dbd_ai python=3.11.5
+   34  conda activate dbd_ai
+   35  pip list
+   36  conda activate dbd_ai
+   37  python --version
+   38  cd gitrepos
+   39  git lfs install
+   40  git-lfs
+   41  sudo apt-get install git-lfs
+   42  git lfs
+   43  git lfs install
+   44  ssh-keygen -t ed25519 -C "mreagles524@gmail.com"
+   45  cat ~/.ssh/id_ed25519.pub
+   46  cd gitrepos
+   47  git clone git@github.com:mreagles524/DBD-Killer-AI.git
+   48  source /home/mreag/miniconda/bin/activate
+   49  python --version
+   50  conda install -c conda-forge opencv
+   51  conda activate dbd_ai
+   52  conda install -c conda-forge opencv
+   53  conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+   54  conda install -c conda-forge tensorflow
+   55  python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+   56  rync /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data ~/gitrepos/DBD-Killer-AI/data
+   57  rsync /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data ~/gitrepos/DBD-Killer-AI/data
+   58  rsync /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data ~/gitrepos/DBD-Killer-AI/data/
+   59  rsync /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data/ ~/gitrepos/DBD-Killer-AI/data/
+   60  rsync /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data/* ~/gitrepos/DBD-Killer-AI/data/*
+   61  python3 -c "import torch; print(torch.cuda.is_available()"
+   62  python3 -c "import torch; print(torch.cuda.is_available())"
+   63  python3 -c "import torch; print(torch.cuda.is_available()")
+   64  python3 -c "import torch; print(torch.cuda.is_available())"
+   65  python3 -c "import torch; print(torch.cuda.is_available()); torch.cuda.get_device_name(0)"
+   66  python3 -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0))"
+   67  rync /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data ~/gitrepos/DBD-Killer-AI/data
+   68  rsync /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data ~/gitrepos/DBD-Killer-AI/data
+   69  rsync -r /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data ~/gitrepos/DBD-Killer-AI/data
+   70  rsync -r /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data ~/gitrepos/DBD-Killer-AI/
+   71  conda activate dbd_ai
+   72  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+   73  apt update
+   74  sudo apt update
+   75  sudo apt upgrade
+   76  sudo apt update --upgrade
+   77  sudo apt-get upgrade
+   78  sudo apt-get update
+   79  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+   80  apt-get update && apt-get install libgl1
+   81  sudo apt-get update && apt-get install libgl1
+   82  pip list | grep opencv
+   83  conda remove opencv-python
+   84  pip list
+   85  conda remove opencv-python
+   86  conda list
+   87  conda remove opencv
+   88  conda search python
+   89  conda install python=3.10.11
+   90  python --version
+   91  history
+   92  conda list
+   93  conda activate dbd_ai
+   94  python --version
+   95  conda activate dbd_ai
+   96  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+   97  conda install -c conda-forge ultralytics
+   98  python --version
+   99  /bin/python3 /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+  100  conda list
+  101  conda install -c conda-forge opencv
+  102  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+  103  rsync -r /mnt/c/Users/mreag/Documents/gitRepos/DBD-Killer-AI/data ~/gitrepos/DBD-Killer-AI/
+  104  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+  105  conda activate dbd_ai
+  106  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+  107  conda activate dbd_ai
+  108  conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=11.8 ultralytics
+  109  conda activate dbd_ai
+  110  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+  111  cd
+  112  ls -ltr
+  113  ls -lhtr
+  114  ls -alhtr
+  115  cd .oh-my-zsh
+  116  ls -ltr
+  117  cd ..
+  118  code .zshrc
+  119  ldconfig -p | grep cuda
+  120  export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$LD_LIBRARY_PATH
+  121  conda activate dbd_ai
+  122  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+  123  python -c "print("hello world")\n\n"
+  124  python -c "print("hello world")"
+  125  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/test.py
+  126  conda find torch
+  127  conda search torch
+  128  nvidia-smi
+  129  conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=12.2 ultralytics
+  130  conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=12.1 ultralytics
+  131  conda activate dbd_ai
+  132  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/test.py
+  133  conda create --name dbd_ai_39 python=3.9.6
+  134  conda activate dbd_ai_39
+  135  conda install -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=12.1 ultralytics
+  136  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+  137  exit
+  138  history
+  139  conda activate dbd_ai
+  140  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/killer/eyes/object_tracking/main.py
+  141  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/test.py
+  142  nvidia-smi
+  143  wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-wsl-ubuntu.pin
+  144  sudo mv cuda-wsl-ubuntu.pin /etc/apt/preferences.d/cuda-repository-pin-600
+  145  wget https://developer.download.nvidia.com/compute/cuda/12.3.1/local_installers/cuda-repo-wsl-ubuntu-12-3-local_12.3.1-1_amd64.deb
+  146  sudo dpkg -i cuda-repo-wsl-ubuntu-12-3-local_12.3.1-1_amd64.deb
+  147  sudo cp /var/cuda-repo-wsl-ubuntu-12-3-local/cuda-*-keyring.gpg /usr/share/keyrings/
+  148  sudo apt-get update
+  149  sudo apt-get -y install cuda-toolkit-12-3
+  150  conda activate dbd_ai
+  151  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/test.py
+  152  conda activate dbd_ai
+  153  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/test.py
+  154  nvidia-smi
+  155  conda activate dbd_ai
+  156  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/test.py

@@ -162,3 +162,4 @@ cython_debug/
 # Data files. Replace npy when needed
 *.mp4
 *.npy
+datasets/

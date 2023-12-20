@@ -31,7 +31,7 @@ from coco_classes import COCO_91_CLASSES
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--input', 
-    default='data/videos/people.mp4',
+    default='videos/people.mp4',
     help='path to input video',
 )
 parser.add_argument(

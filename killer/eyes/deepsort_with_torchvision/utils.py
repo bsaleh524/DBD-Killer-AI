@@ -4,14 +4,14 @@ import numpy as np
 # Define a function to convert detections to SORT format.
 def convert_detections(detections, threshold, classes):
     # Get the bounding boxes, labels and scores from the detections dictionary.
-    boxes = detections.cpu().boxes.numpy()
-    labels = detections.cpu().masks.numpy()
-    scores = detections.cpu().probs.numpy()
+    # boxes = detections.cpu().boxes.numpy()
+    # labels = detections.cpu().masks.numpy()
+    # scores = detections.cpu().probs.numpy()
     #TODO: what are yolo outp-ut predictions
     
-    # boxes = detections["boxes"].cpu().numpy()
-    # labels = detections["labels"].cpu().numpy()
-    # scores = detections["scores"].cpu().numpy()
+    boxes = detections["boxes"].cpu().numpy()
+    labels = detections["labels"].cpu().numpy()
+    scores = detections["scores"].cpu().numpy()
     lbl_mask = np.isin(labels, classes)
     scores = scores[lbl_mask]
     # Filter out low confidence scores and non-person classes.

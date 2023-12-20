@@ -32,7 +32,7 @@ from ultralytics import YOLO
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--input', 
-    default='data/videos/people.mp4',
+    default='videos/people.mp4',
     help='path to input video',
 )
 parser.add_argument(

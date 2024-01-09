@@ -2,14 +2,17 @@
 import click
 import logging
 from roboflow import Roboflow
+from roboflow.core import project, dataset
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 import os
+from typing import Tuple
 
 # @click.command()
 # @click.argument('input_filepath', type=click.Path(exists=True))
 # @click.argument('output_filepath', type=click.Path())
-def main(rf_data_version: int=3, data_format: str = "yolov8"):
+def grab_roboflow_data(rf_data_version: int=3, data_format: str = "yolov8") -> Tuple[
+    Roboflow, project.Project, dataset.Dataset]:
     """ Grabs data from RoboFlow, if not already downloaded to the 
         current directory.
     """
@@ -17,12 +20,12 @@ def main(rf_data_version: int=3, data_format: str = "yolov8"):
     logger.info('making final data set from raw data')
 
     # Pull data from roboflow
-    rf = Roboflow(api_key=os.environ.get("RF_API_KEY"))
-    project = rf.workspace(os.environ.get("RF_WORKSPACE")).project(os.environ.get("RF_PROJECT"))
+    rf_conn = Roboflow(api_key=os.environ.get("RF_API_KEY"))
+    rf_project = rf.workspace(os.environ.get("RF_WORKSPACE")).project(os.environ.get("RF_PROJECT"))
 
-    dataset = project.version(rf_data_version).download(data_format, location=str(project_dir))
+    rf_dataset = project.version(rf_data_version).download(data_format, location=str(project_dir))
     print(dataset.location)
-
+    return rf_conn, rf_project, rf_dataset
 # @click.command()
 # @click.argument('input_filepath', type=click.Path(exists=True))
 # @click.argument('output_filepath', type=click.Path())
@@ -52,4 +55,4 @@ if __name__ == '__main__':
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
-    main()
+    grab_roboflow_data()

@@ -11,7 +11,8 @@ from typing import Tuple
 # @click.command()
 # @click.argument('input_filepath', type=click.Path(exists=True))
 # @click.argument('output_filepath', type=click.Path())
-def grab_roboflow_data(rf_data_version: int=3, data_format: str = "yolov8") -> Tuple[
+def grab_roboflow_data(rf_data_version: str="3", data_format: str = "yolov8",
+                       project_dir: str = "data/external") -> Tuple[
     Roboflow, project.Project, dataset.Dataset]:
     """ Grabs data from RoboFlow, if not already downloaded to the 
         current directory.
@@ -21,10 +22,11 @@ def grab_roboflow_data(rf_data_version: int=3, data_format: str = "yolov8") -> T
 
     # Pull data from roboflow
     rf_conn = Roboflow(api_key=os.environ.get("RF_API_KEY"))
-    rf_project = rf.workspace(os.environ.get("RF_WORKSPACE")).project(os.environ.get("RF_PROJECT"))
+    rf_project = rf_conn.workspace(os.environ.get("RF_WORKSPACE")).project(os.environ.get("RF_PROJECT"))
 
-    rf_dataset = project.version(rf_data_version).download(data_format, location=str(project_dir))
-    print(dataset.location)
+    rf_dataset = rf_project.version(rf_data_version).download(data_format,
+                                                              location=str(project_dir),
+                                                              overwrite=False)
     return rf_conn, rf_project, rf_dataset
 # @click.command()
 # @click.argument('input_filepath', type=click.Path(exists=True))

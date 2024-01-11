@@ -29,3 +29,4 @@ later on:
     - COST (Distance to generator not worth it, chase_time >threshold-> abandon, etc)
 
 
+- exploration is done. Cleanup above, then look into training and result model part.

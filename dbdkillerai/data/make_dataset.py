@@ -12,7 +12,7 @@ from typing import Tuple
 # @click.argument('input_filepath', type=click.Path(exists=True))
 # @click.argument('output_filepath', type=click.Path())
 def grab_roboflow_data(rf_data_version: str="3", data_format: str = "yolov8",
-                       project_dir: str = "data/external") -> Tuple[
+                       project_dir: str = "data/external", overwrite: bool=False) -> Tuple[
     Roboflow, project.Project, dataset.Dataset]:
     """ Grabs data from RoboFlow, if not already downloaded to the 
         current directory.
@@ -26,7 +26,7 @@ def grab_roboflow_data(rf_data_version: str="3", data_format: str = "yolov8",
 
     rf_dataset = rf_project.version(rf_data_version).download(data_format,
                                                               location=str(project_dir),
-                                                              overwrite=False)
+                                                              overwrite=overwrite)
     return rf_conn, rf_project, rf_dataset
 # @click.command()
 # @click.argument('input_filepath', type=click.Path(exists=True))

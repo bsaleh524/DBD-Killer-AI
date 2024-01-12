@@ -22,7 +22,7 @@ def grab_roboflow_data(rf_data_version: str="3", data_format: str = "yolov8",
 
     # Pull data from roboflow
     rf_conn = Roboflow(api_key=os.environ.get("RF_API_KEY"))
-    rf_project = rf_conn.workspace(os.environ.get("RF_WORKSPACE")).project(os.environ.get("RF_PROJECT"))
+    rf_project = rf_conn.workspace(os.getenv("RF_WORKSPACE")).project(os.getenv("RF_PROJECT"))
 
     rf_dataset = rf_project.version(rf_data_version).download(data_format,
                                                               location=str(project_dir),

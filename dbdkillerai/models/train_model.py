@@ -1,23 +1,20 @@
-import ultralytics
 from ultralytics import YOLO
 
 # ultralytics.checks()
 
-# Create a new YOLO model from scratch
-model = YOLO('models/yolov8n.pt')
+def train_yolo(yolo_model: str, data_yml: str, epochs: int = 150, imgsz: int=800,
+               plots: bool = True, workers: int = 0):
+    # Create a new YOLO model from scratch
+    model = YOLO(model=yolo_model)
 
-# Train the model using the 'coco128.yaml' dataset for 3 epochs
-results = model.train(data="data/external/data.yaml",
-                      epochs=1,
-                      imgsz=800,
-                      plots=True,
-                      workers=0)
+    # Train the model using the 'coco128.yaml' dataset for 3 epochs
+    results_train = model.train(data=data_yml,
+                        epochs=epochs,
+                        imgsz=imgsz,
+                        plots=plots,
+                        workers=workers)
 
-# Evaluate the model's performance on the validation set
-results = model.val()
+    # Evaluate the model's performance on the validation set
+    results_val = model.val()
 
-# Perform object detection on an image using the model
-# results = model('https://ultralytics.com/images/bus.jpg')
-
-# Export the model to ONNX format
-# success = model.export(format='onnx')
+    return model, results_train, results_val

@@ -20,8 +20,24 @@ to understand:
 - what is cls_loss
 - what is box_loss
 
-later on:
-- Label huntress dataset and add it. Traps are messing up training.
+Model:
+- Transfer learn 'survivor' as a 'person'? Or transfer learn 'person' as a 'survivor'?
+- Make Notebook of results for Yolov8
+
+Minimap Tasks
+1. Create dataset with only hooks and generators -- done
+2. Run trained model on video
+    1. Write training code for yolov8
+        1. Train model
+        2. Load weights of model
+        3. Evaluate model
+            - Write all in code, then implement in notebook.
+    2. Enable video to be used
+    3. (Later): Live stream game to model (use OBS controller server?)
+3. 
+- Create 2d map from mouse detections
+
+Agent Behavior:
 - start defining agent behavior:
     - STATES (check generators, chase, go hook)
     - ACTIONS (Kick generator, hit survivor, break pallet, etc)

@@ -1,6 +1,8 @@
 Dead By Daylight Killer AI
 ==============================
 pc: 3.10.13
+pip install . -e
+
 An Object detection and tracking model for a killer in Dead by Daylight.
 
 Project Organization

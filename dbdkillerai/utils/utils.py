@@ -99,3 +99,72 @@ def process_yolov8_dataset(data_folder):
 
     df = pd.DataFrame(data)
     return df
+
+#TODO: process_'model'_dataset
+#TODO: process_'model'_dataset
+
+def get_data_value_from_args_yaml(run_dir):
+    args_path = os.path.join(run_dir, 'args.yaml')
+    
+    if os.path.exists(args_path):
+        with open(args_path, 'r') as args_file:
+            args_data = yaml.safe_load(args_file)
+            return args_data.get('data')
+
+    return None
+
+def get_best_model_info(run_dir):
+    results_path = os.path.join(run_dir, 'results.csv')
+    weights_path = os.path.join(run_dir,  'weights', 'best.pt')
+    args_yaml_path = os.path.join(run_dir, 'args.yaml')
+
+    if os.path.exists(results_path) and os.path.exists(weights_path) and os.path.exists(args_yaml_path):
+        # Read the results.csv file
+        results_df = pd.read_csv(results_path)
+
+        # Try to find the column with mAP (with or without "(B)")
+        mAP_column_candidates = [col for col in results_df.columns if 'metrics/mAP50' in col]
+
+        if mAP_column_candidates:
+            mAP_column = mAP_column_candidates[0]
+
+            # Find the row with the highest mAP
+            best_model_row = results_df[results_df[mAP_column] == results_df[mAP_column].max()]
+
+            if not best_model_row.empty:
+                best_model_info = {
+                    'model_folder': run_dir,
+                    'weights_path': weights_path,
+                    'mAP': best_model_row[mAP_column].values[0],
+                    'args_yaml_path': args_yaml_path
+                }
+                return best_model_info
+
+    return None
+
+def find_best_model(runs_directory, folder_type="train",
+                    target_data_value: str = "deadbydaylightkillerai/killer_ai_object_detection/5"):
+    run_dirs = [d for d in os.listdir(runs_directory) if os.path.isdir(os.path.join(runs_directory, d)) and folder_type in d.lower()]
+    
+    filtered_run_dirs = []
+
+    # Filter run_dirs based on target_data_value
+    for run_dir in run_dirs:
+        data_value = get_data_value_from_args_yaml(os.path.join(runs_directory, run_dir))
+        if data_value is not None and target_data_value in data_value:
+            filtered_run_dirs.append(run_dir)
+
+    best_model_info = None
+
+    for run_dir in filtered_run_dirs:
+        model_info = get_best_model_info(os.path.join(runs_directory, run_dir))
+        if model_info is not None:
+            if best_model_info is None or model_info['mAP'] > best_model_info['mAP']:
+                best_model_info = model_info
+    if best_model_info is not None:
+        print(f"Model Folder: {best_model_info['model_folder']}")
+        print(f"Weights Path: {best_model_info['weights_path']}")
+        print(f"mAP: {best_model_info['mAP']}")
+    else:
+        print(f"No models trained on dataset {target_data_value[-1]}")
+    return best_model_info

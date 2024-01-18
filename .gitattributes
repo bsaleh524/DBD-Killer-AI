@@ -1,7 +1,7 @@
-.mp4 filter=lfs diff=lfs merge=lfs -text
-.pt filter=lfs diff=lfs merge=lfs -text
+# .mp4 filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
 # .npy filter=lfs diff=lfs merge=lfs -text
-
 #     1  ls -ltr
 #     2  git status
 #     3  /bin/zsh
@@ -158,3 +158,4 @@
 #   154  nvidia-smi
 #   155  conda activate dbd_ai
 #   156  /home/mreag/miniconda/envs/dbd_ai/bin/python /home/mreag/gitrepos/DBD-Killer-AI/test.py
+

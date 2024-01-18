@@ -91,7 +91,6 @@ target/
 .mypy_cache/
 
 # Videos
-*.mp4
 runs/
 
 # Etc

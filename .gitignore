@@ -92,10 +92,11 @@ target/
 
 # Videos
 *.mp4
-data/
 runs/
 
 # Etc
 *.meta
 *.ckpt
 *.pb
+*.cache
+data.yaml

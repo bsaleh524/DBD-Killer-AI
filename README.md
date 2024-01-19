@@ -24,7 +24,7 @@ Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. 
     - [ ] Hatchets (Huntress)
     - [ ] Traps (Trapper)
 - [ ] Track Survivors that actively move in the environment using DeepSORT.
-- [ ] Build a map from stationary, key survivor generators and hooks.
+- [ ] Build a map from stationary, key generators and hooks.
 - [ ] Navigate to generators and survey them for survivors.
 - [ ] Chase and hit survivors until they are down.
 - [ ] Pickup a survivor, navigate to a hook, and hook a survivor.

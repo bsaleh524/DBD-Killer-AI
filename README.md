@@ -1,10 +1,50 @@
 Dead By Daylight Killer AI
 ==============================
-pc: 3.10.13
-pip install . -e
 
-An Object detection and tracking model for a killer in Dead by Daylight.
+<img src="reports/figures/yolov8_train8.gif" width=500>
 
+
+An Object detection and tracking model for a killer in Dead by Daylight. This repo's goal is stand up an AI that will hunt, chase, kill, and hook survivors that are identified while navigating between generators without any human input. 
+
+Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. Labeling was done manually through [Roboflow](roboflow.com). 
+
+## System Diagram:
+
+**TBD**
+
+## What this repository does:
+
+- [ ] Object Detection: Detect various in-game objects:
+    - [x] Generators
+    - [ ] Pallets
+    - [x] Hooks
+    - [ ] Survivors
+    - [ ] Activity
+    - [ ] Exit Gate
+    - [ ] Hatchets (Huntress)
+    - [ ] Traps (Trapper)
+- [ ] Track Survivors that actively move in the environment using DeepSORT.
+- [ ] Build a map from stationary, key survivor generators and hooks.
+- [ ] Navigate to generators and survey them for survivors.
+- [ ] Chase and hit survivors until they are down.
+- [ ] Pickup a survivor, navigate to a hook, and hook a survivor.
+- [ ] Be able to switch between states:
+    - [ ] Survey (Generators, Activity)
+    - [ ] Chase
+    - [ ] Hook
+- [ ] Include a priority queue for switching between states and performing certain actions.
+- [ ] **TBD**
+
+## How the Killer actually moves
+
+**TBD**
+The killer moves through `pyautogui` to issue commands in order to move about the environment.
+
+## Setup Guide
+
+**TBD**
+
+-----------
 Project Organization
 ------------
 

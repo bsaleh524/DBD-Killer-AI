@@ -4,6 +4,7 @@ import pandas as pd
 import yaml
 
 def format_preprocessing_dictionary(augmentation_dict):
+    """Print the preprocessing that took place on the data from Roboflow."""
     formatted_text = ""
     
     for key, value in augmentation_dict.items():
@@ -19,6 +20,8 @@ def format_preprocessing_dictionary(augmentation_dict):
     return formatted_text
 
 def format_nested_dict(nested_dict, level):
+    """Take a nested dictionary and print it out with indentations after
+    each descending key."""
     formatted_text = ""
     
     for key, value in nested_dict.items():
@@ -33,11 +36,13 @@ def format_nested_dict(nested_dict, level):
     return formatted_text
 
 def load_labels_from_yaml(yaml_file):
+    """Get the labels under the dataset version using the yaml file."""
     with open(yaml_file, 'r') as file:
         labels_data = yaml.load(file, Loader=yaml.FullLoader)
         return labels_data['names']
 
 def calculate_label_counts(label_file, all_labels):
+    """Get the counts of all labels from the dataset."""
     label_counts = {label: 0 for label in all_labels}
 
     with open(label_file, 'r') as label_file:
@@ -52,6 +57,8 @@ def calculate_label_counts(label_file, all_labels):
         return label_counts
 
 def calculate_image_properties(image_path, label_path, all_labels):
+    """Grab and calculate Height, Width, Aspect Ratio, and the counts
+    of all labels."""
     # Read image to get dimensions
     img = cv2.imread(image_path)
     height, width, _ = img.shape
@@ -70,9 +77,13 @@ def calculate_image_properties(image_path, label_path, all_labels):
     }
 
 def process_yolov8_dataset(data_folder):
+    """Create a dataframe of all images from a roboflow dataset,
+    including properties."""
     splits = ['train', 'valid', 'test']  # Default folders
-    with open(data_folder + '/data.yaml') as file:
-        all_labels = yaml.safe_load(file)['names']
+    # with open(data_folder + '/data.yaml') as file:
+    #     all_labels = yaml.safe_load(file)['names']
+
+    all_labels = load_labels_from_yaml(data_folder + '/data.yaml')
 
     data_columns = ['Split', 'Image', 'Width', 'Height', 'AspectRatio'] + all_labels
     data = {col: [] for col in data_columns}
@@ -104,6 +115,7 @@ def process_yolov8_dataset(data_folder):
 #TODO: process_'model'_dataset
 
 def get_data_value_from_args_yaml(run_dir):
+    """Grab arguments used from a previous model run."""
     args_path = os.path.join(run_dir, 'args.yaml')
     
     if os.path.exists(args_path):
@@ -114,6 +126,7 @@ def get_data_value_from_args_yaml(run_dir):
     return None
 
 def get_best_model_info(run_dir):
+    """For the given model, pull information from the argument file."""
     results_path = os.path.join(run_dir, 'results.csv')
     weights_path = os.path.join(run_dir,  'weights', 'best.pt')
     args_yaml_path = os.path.join(run_dir, 'args.yaml')
@@ -144,6 +157,9 @@ def get_best_model_info(run_dir):
 
 def find_best_model(runs_directory, folder_type="train",
                     target_data_value: str = "deadbydaylightkillerai/killer_ai_object_detection/5"):
+    """Based on a dataset, pull the best weights of a yolo model trained on taht dataset.
+    The best model is grabbed by acquiring the highest mAP. Directly correlates with
+    how ultralytics generates the best.pt weights."""
     run_dirs = [d for d in os.listdir(runs_directory) if os.path.isdir(os.path.join(runs_directory, d)) and folder_type in d.lower()]
     
     filtered_run_dirs = []

@@ -86,11 +86,12 @@ def draw_triangle(minimap):
     vertices = vertices.reshape((-1, 1, 2))
 
     # Draw the triangle on the minimap
-    cv2.polylines(minimap, [vertices], isClosed=True, color=(255, 255, 255), thickness=2)
+    # cv2.polylines(minimap, [vertices], isClosed=True, color=(255, 255, 255), thickness=2)
+    cv2.fillPoly(minimap, [vertices], color=(255, 255, 255))
 
 
 # Main loop
-VIDEO_PATH = f"/home/mreag/repos/DBD-Killer-AI/data/raw/huntress_chase.mp4"
+VIDEO_PATH = f"/home/mreag/repos/DBD-Killer-AI/data/raw/generators_shortened.mp4"
 cap = cv2.VideoCapture(VIDEO_PATH)
 video_info = sv.VideoInfo.from_video_path(VIDEO_PATH)
 

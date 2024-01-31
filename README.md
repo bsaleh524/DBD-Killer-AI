@@ -1,7 +1,7 @@
 Dead By Daylight Killer AI
 ==============================
 
-<img src="reports/figures/yolov8_train8.gif" width=500>
+<img src="reports/figures/yolov8_train8.gif" width=700>
 
 
 An Object detection and tracking model for a killer in Dead by Daylight. This repo's goal is stand up an AI that will hunt, chase, kill, and hook survivors that are identified while navigating between generators without any human input. 

@@ -2,7 +2,20 @@
 
 1. Make the env file for storing keys
 2. Use `make_dataset.py` with the first part of the notebok
-3. 
+3. Make a pipeline that ingests recorded video data and automatically begin labeling data for the dataset
+    - Requires you to still look at stuff. So, maybe not until stuff happen.
+4. Determine if the other latop can run DBD
+5. How to determine how far an object is before interacting with it(survivor, generator, pallet, etc).
+6. How to determine what map is in place right now?
+    - Database of maps to pull from. There is a list of maps and variations on wiki
+    - How can we determine what map we are on using the text on the bottom left?
+7. How to determine what path can the agent travel in?
+    - Maybe this relates to the map?
+8. Create a virtual view for the user
+    - Create a minimap for the engineer to see. It should be topdown.
+    - When the agent sees a minimap, maybe it should be saved on a location.
+    - FOV triangle on another minimap display.
+    - 
 
 
 - notebook is for exploring data, not training it.

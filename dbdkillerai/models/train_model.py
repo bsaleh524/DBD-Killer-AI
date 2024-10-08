@@ -1,9 +1,10 @@
 from ultralytics import YOLO
+from typing import Any
 import os
 # ultralytics.checks()
 
 def train_yolo(yolo_model: YOLO, data_yml: str, epochs: int = 150, imgsz: int=800,
-               plots: bool = True, workers: int = 0):
+               plots: bool = True, workers: int = 0, device: Any = 0):
     # Create a new YOLO model from scratch
     # model = YOLO(model=yolo_model)
 
@@ -12,7 +13,8 @@ def train_yolo(yolo_model: YOLO, data_yml: str, epochs: int = 150, imgsz: int=80
                         epochs=epochs,
                         imgsz=imgsz,
                         plots=plots,
-                        workers=workers)
+                        workers=workers,
+                        device=device)
 
     return yolo_model, results_train
 

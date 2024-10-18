@@ -3,8 +3,13 @@ import cv2
 
 # Can we instead have an option, where every few seconds, we would read the text? That worked!
 # So, we added a frame delay AND we should only include this in the survey state.
-# TODO: Add above notes to script. Make another issue to include the OCR in the SURVEY> state only
-    # This will move to a pickup action for a CHASE state, but make another issue for that and tackle it later
+# TODO: Add above notes to script. DONE
+        # Make another issue to include the OCR in the SURVEY> state only
+            # This will move to a pickup action for a CHASE state, but make another issue for that and tackle it later
+        # Clean up the bottom to not render anything on the camera. Only return the detected text in debugging logs
+        # Make issue to make a general log
+        # Clean over function to, upon detection of DAMAGE, pass. Later, implement keybind returns.
+            # Even better, a dictionary for detected words to press a specific button.
 
 def setup_reader():
     reader = easyocr.Reader(['en'])
@@ -23,10 +28,10 @@ current_reader = setup_reader()
 
 # Initialize webcam
 cap = cv2.VideoCapture(0)  # Change '0' if using an external camera
-# cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-
-# cap.set(CV_CAP_PROP_FOURCC, CV_FOURCC('H', '2', '6', '4')) # Tell it its H264
+fps = cap.get(cv2.CAP_PROP_FPS)
+print(f"FPS: {fps}")
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 # Loop to continuously read the camera input
 i = 0
@@ -39,7 +44,7 @@ while True:
         break
     i += 1
 
-    if i == 50:
+    if i == fps*2:
         print("index reached")
         i = 0
         # Convert frame to grayscale (optional but improves OCR performance)

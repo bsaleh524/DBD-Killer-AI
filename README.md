@@ -10,15 +10,16 @@ Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. 
 
 ## System Diagram:
 
-**TBD**
+<img src="reports/figures/architecture.jpg" height=450>
 
 ## What this repository does:
 
 - [ ] Object Detection: Detect various in-game objects:
     - [x] Generators
-    - [ ] Pallets
+    - [X] Pallets
     - [x] Hooks
-    - [ ] Survivors
+    - [X] Survivors
+    - [ ] Downed Survivors
     - [ ] Activity
     - [ ] Exit Gate
     - [ ] Hatchets (Huntress)

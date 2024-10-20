@@ -1,0 +1,1 @@
+###TBD read the text from a picture###

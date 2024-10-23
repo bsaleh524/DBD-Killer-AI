@@ -1,13 +1,14 @@
 #Upfront dictionary of key responses after detecting text.#
 
-state: SURVEY
-  action_commands:
-    damage: space
-    destroy: space
-state: CHASE
-  action_commands:
-    pickup: space
-    destroy: space
-state: HOOK
-  action_commands:
-    hang: space
+states:
+  SURVEY:
+    action_commands:
+      damage: space
+      destroy: space
+  CHASE:
+    action_commands:
+      pickup: space
+      destroy: space
+  HOOK:
+    action_commands:
+      hang: space

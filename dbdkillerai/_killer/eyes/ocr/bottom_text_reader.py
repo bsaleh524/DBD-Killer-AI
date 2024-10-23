@@ -9,17 +9,18 @@ def get_interaction_text(reader: easyocr.Reader, image, command_dict):
     result = reader.readtext(image)
 
     # Detect text
-    for (bbox, text, prob) in result:
+    # for (bbox, text, prob) in result:
+    for (_, text, prob) in result:
         print(f"Detected Text: {text} (Confidence: {prob:.2f})")
 
         if text.lower() in command_dict.keys():
             print(f"{text.lower()} Detected!")  # Detected text matches command
             return command_dict[text.lower()] #TODO: Must be some sort way to send the command over. MQTT?
         else:
-            pass
+            return None
 
 def setup_reader_and_camera(device=0, height=480, width=640):
-    "Setups up EasyOCR screen reader for the webcam."
+    "Setups up EasyOCR model reader with screen capture of the webcam."
     reader = easyocr.Reader(['en'])
 
     # Initialize webcam
@@ -30,14 +31,14 @@ def setup_reader_and_camera(device=0, height=480, width=640):
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     return reader, cap
 
-
-def read_commands(ocr_model, capture_device,
-                  frame_check_multiplier=2, yaml_file="text_to_action.yaml"
-                  ):
-
-    # Read in command dictionary
-    with open(yaml_file, 'r') as file:
+def get_state_commands(state: str = "SURVEY", path_to_yaml: str = "text_to_action.yaml"):
+    # Read in command dictionary for the given state
+    with open(path_to_yaml, 'r') as file:
         action_dict = yaml.safe_load(file)
+    return action_dict['states'][state]['action_commands']
+
+def read_commands(ocr_model, capture_device, action_dict,
+                  frame_check_multiplier=2):
     
     # Loop to continuously read the camera input
     fps = capture_device.get(cv2.CAP_PROP_FPS)
@@ -58,8 +59,8 @@ def read_commands(ocr_model, capture_device,
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             
             # Perform text detection
-            key_command = get_interaction_text(ocr_model, gray)
-
+            key_command = get_interaction_text(ocr_model, gray, action_dict)
+            print(f"Final Command: {key_command}")
         # Display the frame with detected text
         cv2.imshow('Camera Feed - Press q to exit', frame)
 
@@ -70,13 +71,11 @@ def read_commands(ocr_model, capture_device,
             cv2.destroyAllWindows()
             break
 
-    
-
-
-
 
 if __name__ == "__main__":
     ocr_model, cap_device = setup_reader_and_camera(device=0, height=480, width=640)
-    read_commands(ocr_model=ocr_model, capture_device=cap_device)
+    action_dict = get_state_commands(state="SURVEY",
+                                     path_to_yaml="dbdkillerai/_killer/eyes/ocr/text_to_action.yaml")
+    read_commands(ocr_model=ocr_model, capture_device=cap_device, action_dict=action_dict)
 
 

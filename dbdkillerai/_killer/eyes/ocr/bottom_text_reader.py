@@ -3,6 +3,7 @@
 import easyocr
 import cv2
 import yaml
+import pyautogui
 
 def get_interaction_text(reader: easyocr.Reader, image, command_dict):
     """Read the text from the given screencapture frame/image and return key."""
@@ -61,6 +62,20 @@ def read_commands(ocr_model, capture_device, action_dict,
             # Perform text detection
             key_command = get_interaction_text(ocr_model, gray, action_dict)
             print(f"Final Command: {key_command}")
+            if key_command:
+                print('pressing keys')
+                pyautogui.click()
+                pyautogui.press('w')
+                pyautogui.press('h')
+                pyautogui.press('a')
+                pyautogui.press('t')
+                pyautogui.press(key_command)
+                pyautogui.press('i')
+                pyautogui.press('t')
+                pyautogui.press(key_command)
+                pyautogui.press('d')
+                pyautogui.press('o')
+
         # Display the frame with detected text
         cv2.imshow('Camera Feed - Press q to exit', frame)
 

@@ -4,6 +4,7 @@ import easyocr
 import cv2
 import yaml
 import pyautogui
+import time
 
 def get_interaction_text(reader: easyocr.Reader, image, command_dict):
     """Read the text from the given screencapture frame/image and return key."""
@@ -63,18 +64,11 @@ def read_commands(ocr_model, capture_device, action_dict,
             key_command = get_interaction_text(ocr_model, gray, action_dict)
             print(f"Final Command: {key_command}")
             if key_command:
-                print('pressing keys')
-                pyautogui.click()
-                pyautogui.press('w')
-                pyautogui.press('h')
-                pyautogui.press('a')
-                pyautogui.press('t')
-                pyautogui.press(key_command)
-                pyautogui.press('i')
-                pyautogui.press('t')
-                pyautogui.press(key_command)
-                pyautogui.press('d')
-                pyautogui.press('o')
+                print('\nKey Down')
+                pyautogui.keyDown(key_command)
+                time.sleep(2)
+                pyautogui.keyUp(key_command)
+                print('\nKey Up')
 
         # Display the frame with detected text
         cv2.imshow('Camera Feed - Press q to exit', frame)
@@ -86,7 +80,7 @@ def read_commands(ocr_model, capture_device, action_dict,
             cv2.destroyAllWindows()
             break
 
-
+# To test, place the bottom code where you desire for a live feed.
 if __name__ == "__main__":
     ocr_model, cap_device = setup_reader_and_camera(device=0, height=480, width=640)
     action_dict = get_state_commands(state="SURVEY",

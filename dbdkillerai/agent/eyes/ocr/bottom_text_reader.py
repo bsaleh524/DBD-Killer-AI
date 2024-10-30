@@ -84,7 +84,7 @@ def read_commands(ocr_model, capture_device, action_dict,
 if __name__ == "__main__":
     ocr_model, cap_device = setup_reader_and_camera(device=0, height=480, width=640)
     action_dict = get_state_commands(state="SURVEY",
-                                     path_to_yaml="dbdkillerai/_killer/eyes/ocr/text_to_action.yaml")
+                                     path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml")
     read_commands(ocr_model=ocr_model, capture_device=cap_device, action_dict=action_dict)
 
 

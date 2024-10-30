@@ -8,7 +8,7 @@ states:
   CHASE:
     action_commands:
       pickup: space
-      destroy: space
+      # destroy: space
   HOOK:
     action_commands:
       hang: space

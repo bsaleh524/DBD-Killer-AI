@@ -15,11 +15,14 @@ print(Device)
 # Switch interface first.
 
 class KillerState(Protocol):
-    def switch(self, agent): ...
+    def switch_to_survey(self, agent): ...
 
-    def review(self): ...
+    def switch_to_chase(self, agent): ...
 
-    def finalize(self): ...
+    def switch_to_hook(self, agent): ...
+
+    def activate(self, agent): ... #do we need 'agent' here?
+
 ##
 
 class SurveyState:
@@ -29,11 +32,25 @@ class SurveyState:
     are repairing them. If they are, chase the survivor that 
     is found. If no survivors found when next to a generator,
     then damage it if possible'''
-    def switch(self, agent):
+
+    def switch_to_survey(self, agent):
+        print("Switch attempt to Survey failed. Already SURVEY")
+        agent.switch = SurveyState(self)
+
+    def switch_to_chase(self, agent):
         # if model.detects survivor:
-        agent.switch = ChaseState()
+        agent.switch = ChaseState(self)
     
-    def survey(self, agent):
+    def switch_to_hook(self, agent):
+        # if detect downed_survivor.
+        print("Switching to HOOK state...")
+        agent.switch = ChaseState(self)
+    
+    def activate(self, agent):
+        # Go to each generator, start from center and go right
+        # if more generators are on right side. Else, go left.
+        # Survey_direction = Left OR survey_direction = Right
+        print("Currently Surveying...")
         pass
 
 class ChaseState: 
@@ -43,10 +60,15 @@ class ChaseState:
     the Survey state, causing a switch here. The Chase state 
     shall follow the identified survivor and attempt to land
     multiple hits. Once a Downed survivor has been '''
-    def switch(self, agent):
+    def switch_to_survey(self, agent):
+        # if hook_icon=False(no hook icon)
+        print("Switching to SURVEY state...")
+        agent.switch = SurveyState(self)
+    
+    def switch_to_hook(self, agent):
         # if pickup survivor.
         print("Switching to HOOK state...")
-        agent.switch = HookState()
+        agent.switch = ChaseState(self)
 
 class HookState:
     '''Downed survivor is picked up. Hang at nearest hook.
@@ -56,9 +78,12 @@ class HookState:
     for a hook to complete a hook action on, then switch states.
     YOLO: (hook). TODO: expand to other labels'''
     def switch_to_survey(self, agent):
-        # if hook=True(no hook icon)
-        print("Switching to SURVEY state...")
-        agent.switch = SurveyState()
+        # if hook_icon=False(no hook icon)
+        print("Hooked/Dropped Survivor. Switching to SURVEY state...")
+        agent.switch = SurveyState(self)
+    
+    def switch_to_chase(self, agent):
+        print("Can't switch to CHASE, currently holding survivor!")
         
 class Agent:
     '''Killer AI Agent.
@@ -74,20 +99,24 @@ class Agent:
             setup_reader_and_camera(device=0, height=480, width=640)
         
         # Setup SURVEY values since SURVEY is first state.
-        self.state = SurveyState()
+        self.state = SurveyState(self)
         self.state_name = "SURVEY"
         self.action_dict = get_state_commands(
             state=self.state_name,
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml")
 
-    def switch(self):
-        #TODO. it switches itself only one way, which we dont want.
-        # This came from the bulb example, so we should rework it to
-        # switch between all states. Could instead be
-        # self.state.switch_to_survey()
-        # self.state.switch_to_chase()
-        # self.state.switch_to_hook()
-        self.state.switch(self)
+
+
+    def switch_to_survey(self):
+        self.state = SurveyState(self)
+
+    def switch_to_chase(self):
+        self.state = ChaseState(self)
+
+    def switch_to_hook(self):
+        self.state = HookState(self)
+
+
 
     def read_text(self):
         read_commands(

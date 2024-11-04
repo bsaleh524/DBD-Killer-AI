@@ -1,4 +1,5 @@
 from typing import Protocol
+from time import sleep
 from ultralytics import YOLO
 import torch
 from eyes.ocr.bottom_text_reader import (
@@ -21,7 +22,7 @@ class KillerState(Protocol):
 
     def switch_to_hook(self, agent): ...
 
-    def activate(self, agent): ... #do we need 'agent' here?
+    def activate(self): ... #do we need 'agent' here?
 
 ##
 
@@ -39,30 +40,29 @@ class SurveyState:
     def switch_to_chase(self, agent):
         # if model.detects survivor:
         print("Switching to CHASE State...")
-        self.state_name = "CHASE"
-        self.action_dict = get_state_commands(
-            state=self.state_name,
+        agent.state_name = "CHASE"
+        agent.action_dict = get_state_commands(
+            state=agent.state_name,
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
         )
-        agent.switch = ChaseState(self)
+        agent.state = ChaseState()
     
     def switch_to_hook(self, agent):
         # if detect downed_survivor AND picked them up.
         print("Switching to HOOK state...")
-        self.state_name = "HOOK"
-        self.action_dict = get_state_commands(
-            state=self.state_name,
+        agent.state_name = "HOOK"
+        agent.action_dict = get_state_commands(
+            state=agent.state_name,
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
         )
-        agent.switch = HookState(self)
+        agent.state = HookState()
     
-    def activate(self, agent):
+    def activate(self):
         # Go to each generator, start from center and go right
         # if more generators are on right side. Else, go left.
         # Survey_direction = Left OR survey_direction = Right
         print("Entered SURVEY State. Checking Generators.")
-        # while True:
-            # Look for survivors
+        sleep(1)
         pass
 
 class ChaseState: 
@@ -75,12 +75,12 @@ class ChaseState:
     def switch_to_survey(self, agent):
         # if hook_icon=False(no hook icon)
         print("Switching to SURVEY state...")
-        self.state_name = "SURVEY"
-        self.action_dict = get_state_commands(
-            state=self.state_name,
+        agent.state_name = "SURVEY"
+        agent.action_dict = get_state_commands(
+            state=agent.state_name,
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
         )
-        agent.switch = SurveyState(self)
+        agent.state = SurveyState()
     
     def switch_to_chase(self, agent):
         # if model.detects survivor:
@@ -89,15 +89,16 @@ class ChaseState:
     def switch_to_hook(self, agent):
         # if pickup survivor.
         print("Switching to HOOK state...")
-        self.state_name = "HOOK"
-        self.action_dict = get_state_commands(
-            state=self.state_name,
+        agent.state_name = "HOOK"
+        agent.action_dict = get_state_commands(
+            state=agent.state_name,
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
         )
-        agent.switch = HookState(self)
+        agent.state = HookState()
     
-    def activate(self, agent):
+    def activate(self):
         print("Entered CHASE State. Attacking Survivor.")
+        sleep(1)
         pass
 
 class HookState:
@@ -111,12 +112,12 @@ class HookState:
     def switch_to_survey(self, agent):
         # if hook_icon=False(no hook icon)
         print("Hooked/Dropped Survivor. Switching to SURVEY state...")
-        self.state_name = "SURVEY"
-        self.action_dict = get_state_commands(
-            state=self.state_name,
+        agent.state_name = "SURVEY"
+        agent.action_dict = get_state_commands(
+            state=agent.state_name,
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
         )
-        agent.switch = SurveyState(self)
+        agent.state = SurveyState()
     
     def switch_to_chase(self, agent):
         print("Can't switch to CHASE. Currently holding survivor!")
@@ -124,8 +125,9 @@ class HookState:
     def switch_to_hook(self, agent):
         print("Can't switch to HOOK. Currently holding survivor!")
     
-    def activate(self, agent):
+    def activate(self):
         print("Entered HOOK State. Locating Hook for Survivor.")
+        sleep(1)
         pass
 
 class Agent:
@@ -145,29 +147,44 @@ class Agent:
             state=self.state_name,
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
         )
-        self.state = SurveyState(self)
+        self.state = SurveyState()
 
 
     def switch_to_survey(self):
-        self.state.switch_to_survey()
+        self.state.switch_to_survey(self)
 
     def switch_to_chase(self):
-        self.state.switch_to_chase()
+        self.state.switch_to_chase(self)
 
     def switch_to_hook(self):
-        self.state.switch_to_hook()
+        self.state.switch_to_hook(self)
 
+    def test_all_states(self):
+        # survey
+        self.switch_to_survey()
+        self.state.activate()
+        self.switch_to_chase()
+        self.state.activate()
 
-    def read_text(self):
-        read_commands(
-            ocr_model=self.ocr_model,
-            capture_device=self.cap_device,
-            action_dict=self.action_dict
-        )
+        # chase
+        self.switch_to_survey()
+        self.state.activate()
+
+        # Survey
+        self.switch_to_chase()
+        self.state.activate()
+
+        #chase
+        self.switch_to_hook()
+        self.state.activate()
+
+        #hook
+        self.switch_to_survey()
+        self.state.activate()
 
 def main() -> None:
-    
-    killer = Agent(yolo_model_path="DBD-Killer-AI/notebooks/models/yolov8n.pt")
+    killer = Agent(yolo_model_path="notebooks/models/yolov8n.pt")
+    killer.test_all_states()
 
 if __name__ == "__main__":
     main()

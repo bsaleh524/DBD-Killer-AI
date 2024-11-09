@@ -10,7 +10,11 @@ Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. 
 
 ## System Diagram:
 
-<img src="reports/figures/architecture.jpg" height=450>
+<img src="reports/figures/architecture.jpg" height=400>
+
+### State Diagram:
+
+<img src="reports/figures/StateSpace.jpg" height=400>
 
 ## What this repository does:
 

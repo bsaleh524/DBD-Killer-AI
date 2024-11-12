@@ -188,3 +188,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    #TODO: You modified the bottom_text_reader to process images
+    # and it oddly displays two boxes of images. We need just one preview window
+    # with the bounding boxes. Then, follow the read of the issue.(this may be #3)

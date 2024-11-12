@@ -6,20 +6,26 @@ import yaml
 import pyautogui
 import time
 
+from PIL import Image as pil
+from pkg_resources import parse_version
+if parse_version(pil.__version__)>=parse_version('10.0.0'):
+    pil.ANTIALIAS=pil.LANCZOS
+
+
 def get_interaction_text(reader: easyocr.Reader, image, command_dict):
     """Read the text from the given screencapture frame/image and return key."""
     result = reader.readtext(image)
 
     # Detect text
     # for (bbox, text, prob) in result:
-    for (_, text, prob) in result:
+    for (bbox, text, prob) in result:
         print(f"Detected Text: {text} (Confidence: {prob:.2f})")
 
         if text.lower() in command_dict.keys():
             print(f"{text.lower()} Detected!")  # Detected text matches command
-            return command_dict[text.lower()] #TODO: Must be some sort way to send the command over. MQTT?
+            return command_dict[text.lower()], bbox #TODO: Must be some sort way to send the command over. MQTT?
         else:
-            return None
+            return (None, None)
 
 def setup_reader_and_camera(device=0, height=480, width=640):
     "Setups up EasyOCR model reader with screen capture of the webcam."
@@ -61,8 +67,27 @@ def read_commands(ocr_model, capture_device, action_dict,
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             
             # Perform text detection
-            key_command = get_interaction_text(ocr_model, gray, action_dict)
-            print(f"Final Command: {key_command}")
+            key_command, bbox = get_interaction_text(ocr_model, gray, action_dict)
+
+            # DEBUG: Display results on the frame (Optional: for debugging/visualization)
+            # for (bbox, text, prob) in results:
+            # Draw bounding box around detected text
+            if key_command:
+                top_left = tuple(map(int, bbox[0]))
+                bottom_right = tuple(map(int, bbox[2]))
+                cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
+
+                # Put the detected text on the frame
+                cv2.putText(frame, key_command, top_left,
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
+
+                # Log detected text to a file
+                # log_to_file(text)
+
+                # Display the frame with bounding boxes in a window
+                cv2.imshow('Webcam OCR', frame)
+
+                print(f"Final Command: {key_command}")
             if key_command:
                 print('\nKey Down')
                 pyautogui.keyDown(key_command)

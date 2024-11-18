@@ -15,17 +15,18 @@ if parse_version(pil.__version__)>=parse_version('10.0.0'):
 def get_interaction_text(reader: easyocr.Reader, image, command_dict):
     """Read the text from the given screencapture frame/image and return key."""
     result = reader.readtext(image)
-
+    if result:
     # Detect text
-    # for (bbox, text, prob) in result:
-    for (bbox, text, prob) in result:
-        print(f"Detected Text: {text} (Confidence: {prob:.2f})")
+        for (bbox, text, prob) in result:
+            print(f"Detected Text: {text} (Confidence: {prob:.2f})")
 
-        if text.lower() in command_dict.keys():
-            print(f"{text.lower()} Detected!")  # Detected text matches command
-            return command_dict[text.lower()], bbox #TODO: Must be some sort way to send the command over. MQTT?
-        else:
-            return (None, None)
+            if text.lower() in command_dict.keys():
+                print(f"{text.lower()} Detected!")  # Detected text matches command
+                return command_dict[text.lower()], bbox #TODO: Must be some sort way to send the command over. MQTT?
+            else:
+                return None, None
+    else:
+        return None, None
 
 def setup_reader_and_camera(device=0, height=480, width=640):
     "Setups up EasyOCR model reader with screen capture of the webcam."
@@ -84,11 +85,8 @@ def read_commands(ocr_model, capture_device, action_dict,
                 # Log detected text to a file
                 # log_to_file(text)
 
-                # Display the frame with bounding boxes in a window
-                cv2.imshow('Webcam OCR', frame)
-
                 print(f"Final Command: {key_command}")
-            if key_command:
+            # if key_command:
                 print('\nKey Down')
                 pyautogui.keyDown(key_command)
                 time.sleep(2)

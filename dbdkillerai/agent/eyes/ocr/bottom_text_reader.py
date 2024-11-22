@@ -49,6 +49,9 @@ def get_state_commands(state: str = "SURVEY", path_to_yaml: str = "text_to_actio
 def read_commands(ocr_model, capture_device, action_dict,
                   frame_check_multiplier=2):
     
+    last_key_command = None
+    last_bbox = None
+
     # Loop to continuously read the camera input
     fps = capture_device.get(cv2.CAP_PROP_FPS)
     i = 0
@@ -74,26 +77,30 @@ def read_commands(ocr_model, capture_device, action_dict,
             # for (bbox, text, prob) in results:
             # Draw bounding box around detected text
             if key_command:
-                top_left = tuple(map(int, bbox[0]))
-                bottom_right = tuple(map(int, bbox[2]))
-                cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
-
-                # Put the detected text on the frame
-                cv2.putText(frame, key_command, top_left,
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
-
+                last_key_command = key_command
+                last_bbox = bbox
                 # Log detected text to a file
                 # log_to_file(text)
 
                 print(f"Final Command: {key_command}")
-            # if key_command:
+                # Do the command
                 print('\nKey Down')
                 pyautogui.keyDown(key_command)
                 time.sleep(2)
                 pyautogui.keyUp(key_command)
                 print('\nKey Up')
 
-        # Display the frame with detected text
+        # Overlay the last detected information on the frame
+        if last_key_command and last_bbox:
+            top_left = tuple(map(int, last_bbox[0]))
+            bottom_right = tuple(map(int, last_bbox[2]))
+            cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
+
+            # Put the detected text on the frame
+            cv2.putText(frame, last_key_command, top_left,
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
+
+        # Display the frame (with or without overlays) in a single window
         cv2.imshow('Camera Feed - Press q to exit', frame)
 
         # Press 'q' to break the loop and exit

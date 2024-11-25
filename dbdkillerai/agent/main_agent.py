@@ -279,4 +279,9 @@ def main() -> None:
     
 if __name__ == "__main__":
     main()
-    #TODO: Follow issue.
+    #TODO: Test the yolo model inputs. Never finished due to mac env issues.
+    # ALso, we have a crop image feature for the OCR model. test and see how that
+    # works after the yolo one. Then, implment that here. 
+    # Then, ensure both are used here in the loop. Once both are done, THEN,
+    # we can potentially follow states based upon what the model sees. 
+    # THENN, Follow issue.

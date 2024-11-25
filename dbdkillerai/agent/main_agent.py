@@ -156,6 +156,7 @@ class Agent:
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
         )
         self.state = SurveyState()
+        self.frame_check_multiplier = 2
 
 
     def switch_to_survey(self):
@@ -189,77 +190,93 @@ class Agent:
     #     #hook
     #     self.switch_to_survey()
     #     self.state.activate()
+        # return None
 
 # implement this into camera
-def read_screen_input(ocr_model, capture_device, action_dict,
-                  frame_check_multiplier=2):
-    
-    last_key_command = None
-    last_bbox = None
-
-    # Loop to continuously read the camera input
-    fps = capture_device.get(cv2.CAP_PROP_FPS)
-    i = 0
-    while True:
-        # Capture each frame from the camera
-        ret, frame = capture_device.read()
-        if not ret:
-            print("Failed to grab frame")
-            break
+    def read_screen_input(self):
         
-        i += 1
-        # How many frames until a text check is done. Based on the frame multiplier.
-        if i == fps*frame_check_multiplier: 
-            print("index reached")  #TODO: add into logging
-            i = 0
-            # Convert frame to grayscale (optional but improves OCR performance)
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        last_key_command = None
+        last_bbox = None
+
+        # Loop to continuously read the camera input
+        fps = self.cap_device.get(cv2.CAP_PROP_FPS)
+        i = 0
+
+        while True:
+            # Capture each frame from the camera
+            ret, frame = self.cap_device.read()
+            if not ret:
+                print("Failed to grab frame.")
+                break
             
-            # Perform text detection
-            key_command, bbox = get_interaction_text(ocr_model, gray, action_dict)
+            i += 1
+            # How many frames until a text check is done. Based on the frame multiplier.
+            if i == fps*self.frame_check_multiplier: 
+                print("OCR processing interval reached.")  #TODO: add into logging
+                i = 0
+                # Convert frame to grayscale (optional but improves OCR performance)
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                
+                # Perform text detection
+                key_command, bbox = get_interaction_text(self.ocr_model, gray, self.action_dict)
 
-            # DEBUG: Display results on the frame (Optional: for debugging/visualization)
-            # for (bbox, text, prob) in results:
-            # Draw bounding box around detected text
-            if key_command:
-                last_key_command = key_command
-                last_bbox = bbox
-                # Log detected text to a file
-                # log_to_file(text)
+                # DEBUG: Display results on the frame (Optional: for debugging/visualization)
+                # for (bbox, text, prob) in results:
+                # Draw bounding box around detected text
+                if key_command:
+                    last_key_command = key_command
+                    last_bbox = bbox
+                    # Log detected text to a file
+                    # log_to_file(text)
 
-                print(f"Final Command: {key_command}")
-                # Do the command
-                print('\nKey Down')
-                pyautogui.keyDown(key_command)
-                time.sleep(2)
-                pyautogui.keyUp(key_command)
-                print('\nKey Up')
+                    print(f"Final Command: {key_command}")
+                    # Do the command
+                    print('\nKey Down')
+                    pyautogui.keyDown(key_command)
+                    time.sleep(2)
+                    pyautogui.keyUp(key_command)
+                    print('\nKey Up')
 
-        # Overlay the last detected information on the frame
-        if last_key_command and last_bbox:
-            top_left = tuple(map(int, last_bbox[0]))
-            bottom_right = tuple(map(int, last_bbox[2]))
-            cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
+            # YOLO inference on the current frame
+            yolo_results = self.obj_det.predict(
+                source=frame, conf=0.2, show=False)
 
-            # Put the detected text on the frame
-            cv2.putText(frame, last_key_command, top_left,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
+            # Overlay YOLO predictions on the frame
+            for result in yolo_results[0].boxes:
+                # Extract coordinates, class, and confidence
+                x1, y1, x2, y2 = map(int, result.xyxy[0])
+                cls = int(result.cls)
+                conf = float(result.conf)
+                label = f"{self.obj_det.names[cls]} {conf:.2f}"
 
-        # Display the frame (with or without overlays) in a single window
-        cv2.imshow('Camera Feed - Press q to exit', frame)
+                # Draw bounding box and label on the frame
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-        # Press 'q' to break the loop and exit
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            # Release the camera and close all OpenCV windows
-            capture_device.release()
-            cv2.destroyAllWindows()
-            break        
+            # Overlay the last detected information on the frame
+            if last_key_command and last_bbox:
+                top_left = tuple(map(int, last_bbox[0]))
+                bottom_right = tuple(map(int, last_bbox[2]))
+                cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
+
+                # Put the detected text on the frame
+                cv2.putText(frame, last_key_command, top_left,
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
+
+            # Display the frame (with or without overlays) in a single window
+            cv2.imshow('Camera Feed - Press q to exit', frame)
+
+            # Press 'q' to break the loop and exit
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                # Release the camera and close all OpenCV windows
+                self.cap_device.release()
+                cv2.destroyAllWindows()
+                break
 
 def main() -> None:
-    killer = Agent(yolo_model_path="notebooks/models/yolov8n.pt")
-    # killer.test_all_states()
+    killer = Agent(yolo_model_path="models/yolov8n.pt")
+    killer.read_screen_input()
     
-
 if __name__ == "__main__":
     main()
     #TODO: Follow issue.

@@ -1,6 +1,7 @@
 name: dbd_ai
 channels:
   - pytorch
+  - anaconda
   - conda-forge
   - defaults
 dependencies:
@@ -13,18 +14,22 @@ dependencies:
   - brotli-python=1.0.9=py310hc377ac9_7
   - bzip2=1.0.8=h620ffc9_4
   - c-ares=1.25.0=h93a5062_0
-  - ca-certificates=2023.12.12=hca03da5_0
+  - ca-certificates=2024.9.24=hca03da5_0
   - cairo=1.16.0=h302bd0f_5
   - cffi=1.16.0=py310h80987f9_0
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - click=8.1.7=py310hca03da5_0
+  - cloudpickle=3.0.0=py310hca03da5_0
   - colorama=0.4.6=pyhd8ed1ab_0
   - comm=0.2.1=pyhd8ed1ab_0
   - contourpy=1.2.0=py310h48ca7d4_0
   - cryptography=41.0.7=py310hd4332d6_0
   - cyrus-sasl=2.1.28=h9131b1a_1
+  - cytoolz=0.12.2=py310h80987f9_0
+  - dask-core=2024.8.2=py310hca03da5_0
   - debugpy=1.6.7=py310h313beb8_0
   - decorator=5.1.1=pyhd3eb1b0_0
+  - easyocr=1.7.0=py310h48ca7d4_0
   - eigen=3.4.0=hc021e02_0
   - exceptiongroup=1.0.4=py310hca03da5_0
   - executing=0.8.3=pyhd3eb1b0_0
@@ -34,6 +39,8 @@ dependencies:
   - fontconfig=2.14.1=hee714a5_2
   - fonttools=4.25.0=pyhd3eb1b0_0
   - freetype=2.12.1=h1192e45_0
+  - fsspec=2024.6.1=py310hca03da5_0
+  - geos=3.9.1=hc377ac9_1
   - gettext=0.21.0=h13f89a0_1
   - giflib=5.2.1=h80987f9_3
   - glib=2.69.1=h514c7bf_2
@@ -46,18 +53,23 @@ dependencies:
   - harfbuzz=4.3.0=he9eebac_1
   - hdf5=1.12.1=h05c076b_3
   - icu=68.2=hbdafb3b_0
+  - imagecodecs-lite=2019.12.3=py310hb3e58dc_8
+  - imageio=2.33.1=py310hca03da5_0
   - importlib-metadata=7.0.1=pyha770c72_0
   - importlib_metadata=7.0.1=hd8ed1ab_0
   - ipykernel=6.28.0=pyh3cd1d5f_0
   - ipython=8.20.0=py310hca03da5_0
+  - ipywidgets=8.0.4=py310hca03da5_0
   - jedi=0.18.1=py310hca03da5_1
   - jinja2=3.1.2=py310hca03da5_0
   - jpeg=9e=h80987f9_1
   - jupyter_client=8.6.0=pyhd8ed1ab_0
   - jupyter_core=5.5.0=py310hca03da5_0
+  - jupyterlab_widgets=3.0.9=py310hca03da5_0
   - kiwisolver=1.4.4=py310h313beb8_0
   - krb5=1.20.1=h69eda48_0
   - lame=3.100=h1a28f6b_0
+  - lazy_loader=0.4=py310hca03da5_0
   - lcms2=2.12=hba8e193_0
   - lerc=3.0=hc377ac9_0
   - libbrotlicommon=1.1.0=hb547adb_1
@@ -84,6 +96,7 @@ dependencies:
   - libpng=1.6.39=h80987f9_0
   - libpq=12.15=h02f6b3c_1
   - libsodium=1.0.18=h27ca646_1
+  - libsqlite=3.46.0=hfb93653_0
   - libssh2=1.10.0=h7a5bd25_2
   - libtasn1=4.19.0=h80987f9_0
   - libtiff=4.5.1=h313beb8_0
@@ -93,7 +106,9 @@ dependencies:
   - libwebp-base=1.3.2=h80987f9_0
   - libxml2=2.10.4=h372ba2a_0
   - libxslt=1.1.37=h1bd8bc4_0
+  - libzlib=1.2.13=hfb2fe0b_6
   - llvm-openmp=14.0.6=hc6e5704_0
+  - locket=1.0.0=py310hca03da5_0
   - lz4-c=1.9.4=h313beb8_0
   - markupsafe=2.1.3=py310h80987f9_0
   - matplotlib-base=3.8.0=py310h46d7db6_0
@@ -107,6 +122,8 @@ dependencies:
   - nest-asyncio=1.5.8=pyhd8ed1ab_0
   - nettle=3.7.3=h84b5d62_1
   - networkx=3.1=py310hca03da5_0
+  - ninja=1.10.2=hca03da5_5
+  - ninja-base=1.10.2=h525c30c_5
   - numexpr=2.8.7=py310hecc3335_0
   - numpy=1.26.3=py310h3b2db8e_0
   - numpy-base=1.26.3=py310ha9811e2_0
@@ -117,10 +134,11 @@ dependencies:
   - packaging=23.2=pyhd8ed1ab_0
   - pandas=2.1.4=py310h46d7db6_0
   - parso=0.8.3=pyhd3eb1b0_0
+  - partd=1.4.1=py310hca03da5_0
   - patsy=0.5.6=pyhd8ed1ab_0
   - pcre=8.45=hbdafb3b_0
   - pexpect=4.8.0=pyhd3eb1b0_3
-  - pillow=10.0.1=py310h3b245a6_0
+  - pillow=9.4.0=py310h313beb8_1
   - pip=23.3.1=py310hca03da5_0
   - pixman=0.40.0=h27ca646_0
   - platformdirs=4.1.0=pyhd8ed1ab_0
@@ -130,16 +148,21 @@ dependencies:
   - ptyprocess=0.7.0=pyhd3eb1b0_2
   - pure_eval=0.2.2=pyhd3eb1b0_0
   - py-cpuinfo=9.0.0=pyhd8ed1ab_0
+  - py-opencv=4.6.0=hca03da5_5
+  - pyclipper=1.3.0.post3=py310hc377ac9_0
   - pycparser=2.21=pyhd3eb1b0_0
   - pygments=2.15.1=py310hca03da5_1
   - pyopenssl=23.2.0=py310hca03da5_0
   - pyparsing=3.0.9=pyhd8ed1ab_0
   - pysocks=1.7.1=py310hca03da5_0
-  - python=3.10.13=hb885b13_0
+  - python=3.10.13=h2469fbe_1_cpython
+  - python-bidi=0.4.2=py310hca03da5_0
   - python-dateutil=2.8.2=pyhd8ed1ab_0
   - python-tzdata=2023.4=pyhd8ed1ab_0
-  - pytorch=2.1.2=py3.10_0
+  - python_abi=3.10=5_cp310
+  - pytorch=2.4.1=py3.10_0
   - pytz=2023.3.post1=pyhd8ed1ab_0
+  - pywavelets=1.7.0=py310h80987f9_0
   - pyyaml=6.0.1=py310h80987f9_0
   - pyzmq=25.1.0=py310h313beb8_0
   - qt-main=5.15.2=h9b4df51_9
@@ -147,18 +170,22 @@ dependencies:
   - qtwebkit=5.212=h19f419d_5
   - readline=8.2=h1a28f6b_0
   - requests=2.31.0=py310hca03da5_0
+  - scikit-image=0.20.0=py310h313beb8_0
   - scipy=1.11.4=py310h20cbe94_0
   - seaborn=0.13.1=hd8ed1ab_0
   - seaborn-base=0.13.1=pyhd8ed1ab_0
   - setuptools=68.2.2=py310hca03da5_0
+  - shapely=2.0.5=py310h696e30d_0
   - six=1.16.0=pyh6c4a22f_0
   - sqlite=3.41.2=h80987f9_0
   - stack_data=0.2.0=pyhd3eb1b0_0
   - statsmodels=0.14.0=py310hbda83bc_0
   - sympy=1.12=py310hca03da5_0
-  - tk=8.6.12=hb8d0fd4_0
-  - torchaudio=2.1.2=py310_cpu
-  - torchvision=0.16.2=py310_cpu
+  - tifffile=2020.6.3=py_0
+  - tk=8.6.14=h6ba3021_0
+  - toolz=0.12.0=py310hca03da5_0
+  - torchaudio=2.4.1=py310_cpu
+  - torchvision=0.15.2=cpu_py310h31aa045_0
   - tornado=6.3.3=py310h80987f9_0
   - tqdm=4.66.1=pyhd8ed1ab_0
   - traitlets=5.7.1=py310hca03da5_0
@@ -168,23 +195,36 @@ dependencies:
   - urllib3=1.26.18=py310hca03da5_0
   - wcwidth=0.2.5=pyhd3eb1b0_0
   - wheel=0.41.2=py310hca03da5_0
+  - widgetsnbextension=4.0.5=py310hca03da5_0
   - x264=1!152.20180806=h1a28f6b_0
   - xz=5.4.5=h80987f9_0
   - yaml=0.2.5=h1a28f6b_0
   - zeromq=4.3.4=hbdafb3b_1
   - zipp=3.17.0=pyhd8ed1ab_0
-  - zlib=1.2.13=h5a0b063_0
+  - zlib=1.2.13=hfb2fe0b_6
   - zstd=1.5.5=hd90d995_0
   - pip:
       - certifi==2023.7.22
       - chardet==4.0.0
       - cycler==0.10.0
       - idna==2.10
+      - mouseinfo==0.1.3
       - opencv-python-headless==4.8.0.74
+      - pyautogui==0.9.54
+      - pygetwindow==0.0.9
+      - pymsgbox==1.0.9
+      - pyobjc-core==10.3.1
+      - pyobjc-framework-cocoa==10.3.1
+      - pyobjc-framework-quartz==10.3.1
+      - pyperclip==1.9.0
+      - pyrect==0.2.0
+      - pyscreeze==1.0.1
       - python-dotenv==1.0.0
       - python-magic==0.4.27
+      - pytweening==1.2.0
       - requests-toolbelt==1.0.0
       - roboflow==1.1.16
+      - rubicon-objc==0.4.9
       - supervision==0.17.1
 prefix: /Users/mreagles524/anaconda3/envs/dbd_ai
 
@@ -198,3 +238,9 @@ pyautogui
 opencv-python==4.9.0
 conda install conda-forge::pyautogui
 conda install anaconda::easyocr
+pyautogui
+ipykernel
+
+conda create -n dbd_ai python=3.10.13 -y
+conda activate my_env
+pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu

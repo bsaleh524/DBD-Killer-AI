@@ -18,22 +18,17 @@ state_responses:
     pallet: DESTRUCTION
     damaging gen: DAMAGE GENERATOR
     finding_survivor: SURVIVOR FOUND
-  
   CHASE:
     Chasing: CHASE
     Hitting: HIT
-  
   HOOK:
     hooking: HOOKED
     hooking: CAUGHT!(whats this)
     hooking: ENTITY SUMMONED
-
-  flashlight: FLASHLIGHT EVASION
-  hatch: HATCH CLOSED
-
-
+  MISC:
+    flashlight: FLASHLIGHT EVASION
+    hatch: HATCH CLOSED
 Huntress specific:
   Axe:
     - CHARGED SHOT
-    - HIT
     - PRECISE SHOT

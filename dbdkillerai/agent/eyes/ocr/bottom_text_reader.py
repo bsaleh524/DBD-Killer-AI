@@ -24,21 +24,24 @@ def get_interaction_text(reader: easyocr.Reader, image, command_dict):
                 print(f"{text.lower()} Detected!")  # Detected text matches command
                 return command_dict[text.lower()], bbox #TODO: Must be some sort way to send the command over. MQTT?
             else:
-                return None, None
-    else:
-        return None, None
+                continue
+    return None, None
 
-def setup_reader_and_camera(device=0, height=480, width=640):
+def setup_reader_and_camera(test_image=False, device=0, height=480, width=640):
     "Setups up EasyOCR model reader with screen capture of the webcam."
     reader = easyocr.Reader(['en'])
 
-    # Initialize webcam
-    cap = cv2.VideoCapture(device) 
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    print(f"FPS: {fps}")  #TODO: Logging
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    return reader, cap
+    # If testing, use an image
+    if not test_image:
+        # Initialize webcam
+        cap = cv2.VideoCapture(device) 
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        print(f"FPS: {fps}")  #TODO: Logging
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    else:
+        cap = cv2.imread('/Users/mreagles524/Documents/gitrepos/projects/DBD-Killer-AI/test/eyes/damage.png')
+        return reader, cap
 
 def get_state_commands(state: str = "SURVEY", path_to_yaml: str = "text_to_action.yaml"):
     # Read in command dictionary for the given state

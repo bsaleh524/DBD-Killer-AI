@@ -190,14 +190,14 @@ class Agent:
             cv2.imshow("Cropped Image", cropped_image)
 
             # Wait for a key press to display the images
-            cv2.waitKey(0)  # Adjust the value as needed (0 waits indefinitely)
+            # cv2.waitKey(0)  # Adjust the value as needed (0 waits indefinitely)
 
             # Close all windows after key press
             # cv2.destroyAllWindows()
             # Requires cropped top right section (later time)
             #
             # Perform text detection
-            key_command, bbox = get_interaction_text(self.ocr_model, cropped_image, self.action_dict)
+             key_command, bbox = get_interaction_text(self.ocr_model, cropped_image, self.action_dict)
 
             # Check if a key was pressed
             if key_command:
@@ -228,28 +228,30 @@ class Agent:
                     label = f"{self.obj_det.names[cls]} {conf:.2f}"
 
                     # Draw bounding box and label on the frame
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.rectangle(gray, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(gray, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
                 # Overlay the last detected information on the frame
                 if last_key_command and last_bbox:
                     top_left = tuple(map(int, last_bbox[0]))
                     bottom_right = tuple(map(int, last_bbox[2]))
-                    cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
+                    cv2.rectangle(cropped_image, top_left, bottom_right, (0, 255, 0), 2)
 
                     # Put the detected text on the frame
-                    cv2.putText(frame, last_key_command, top_left,
+                    cv2.putText(cropped_image, last_key_command, top_left,
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
 
                 # Display the frame (with or without overlays) in a single window
-                cv2.imshow('Camera Feed - Press q to exit', frame)
+                cv2.imshow('Camera Feed - Press q to exit', gray)
 
                 # Press 'q' to break the loop and exit
+                cv2.waitKey(0)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     # Release the camera and close all OpenCV windows
                     self.cap_device.release()
                     cv2.destroyAllWindows()
-
+#TODO: Get it to stop making all of the windows now. But it is debug so maybe its ok.
+                    ## ok instead you should have it display each window better.
             else:
                 print(f"No key command found. Unrecognized text")
 

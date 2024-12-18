@@ -228,9 +228,9 @@ dependencies:
       - supervision==0.17.1
 prefix: /Users/mreagles524/anaconda3/envs/dbd_ai
 
-roboflow
-ultralytics
-pytorch...
+# roboflow
+# ultralytics
+# pytorch...
 python3.10.13
 pandas
 pillow==9.4.0
@@ -241,6 +241,8 @@ conda install anaconda::easyocr
 pyautogui
 ipykernel
 
-conda create -n dbd_ai python=3.10.13 -y
-conda activate my_env
+conda create -n dbd_ai python=3.12.1 -y
+conda activate dbd_ai
 pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
+conda install anaconda::easyocr
+conda install anaconda::easyocr -c conda-forge roboflow ultralytics pandas pillow=9.4.0 opencv=4.9.0 easyocr ipykernel pyautogui

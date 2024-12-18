@@ -1,0 +1,22 @@
+name: dbd_ai
+channels:
+  - nvidia
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.12.1
+  - pillow=9.4.0
+  - pyautogui
+  - opencv-python=4.9.0
+  - easyocr
+  - ipykernel
+  - ultralytics
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1
+  - pip
+  - pip:
+      - roboflow
+
+# conda env create -f env_linux.yml  # For the WSL2 Ubuntu

@@ -13,7 +13,7 @@ from eyes.ocr.bottom_text_reader import (
     setup_reader_and_camera, get_state_commands,
     get_interaction_text, 
     )
-from eyes.ocr.crop_images import crop_bottom_center
+from eyes.ocr.crop_images import crop_bottom_center, crop_top_right
 if torch.cuda.is_available():
     Device = torch.device("cuda")
 elif torch.backends.mps.is_available():
@@ -179,82 +179,68 @@ class Agent:
         
         # Determine if we want to test on an image first
         if self.test_image:
-
-            cv2.imshow("Original Image", self.cap_device)
-
+            last_key_command = None
+            last_bbox = None
             # Convert frame to grayscale (optional but improves OCR performance)
             gray = cv2.cvtColor(self.cap_device, cv2.COLOR_BGR2GRAY)
             
             # Requires cropped bottom section
-            cropped_image = crop_bottom_center(gray)
-            cv2.imshow("Cropped Image", cropped_image)
+            cropped_image_bottom = crop_bottom_center(gray)
+            cropped_image_topright = crop_top_right(gray)
 
-            # Wait for a key press to display the images
-            # cv2.waitKey(0)  # Adjust the value as needed (0 waits indefinitely)
-
-            # Close all windows after key press
-            # cv2.destroyAllWindows()
-            # Requires cropped top right section (later time)
-            #
             # Perform text detection
-             key_command, bbox = get_interaction_text(self.ocr_model, cropped_image, self.action_dict)
-
+            key_command_bottom, bbox = get_interaction_text(self.ocr_model, cropped_image_bottom, self.action_dict)
+            reward_topright, _ = get_interaction_text(self.ocr_model, cropped_image_topright, self.action_dict)
             # Check if a key was pressed
-            if key_command:
-                last_key_command = key_command
+            if key_command_bottom:
+                last_key_command = key_command_bottom
                 last_bbox = bbox
                 # Log detected text to a file
                 # log_to_file(text)
 
-                print(f"Final Command: {key_command}")
+                print(f"Final Command: {key_command_bottom}")
                 # Do the command
                 print('\nKey Down')
-                pyautogui.keyDown(key_command)
-                time.sleep(2)
-                pyautogui.keyUp(key_command)
                 print('\nKey Up')
 
+            # YOLO inference on the current frame
+            yolo_results = self.obj_det.predict(
+                source=self.cap_device, conf=0.2, show=False)
 
-                # YOLO inference on the current frame
-                yolo_results = self.obj_det.predict(
-                    source=self.cap_device, conf=0.2, show=False)
+            # Overlay YOLO predictions on the frame
+            for result in yolo_results[0].boxes:
+                # Extract coordinates, class, and confidence
+                x1, y1, x2, y2 = map(int, result.xyxy[0])
+                cls = int(result.cls)
+                conf = float(result.conf)
+                label = f"{self.obj_det.names[cls]} {conf:.2f}"
 
-                # Overlay YOLO predictions on the frame
-                for result in yolo_results[0].boxes:
-                    # Extract coordinates, class, and confidence
-                    x1, y1, x2, y2 = map(int, result.xyxy[0])
-                    cls = int(result.cls)
-                    conf = float(result.conf)
-                    label = f"{self.obj_det.names[cls]} {conf:.2f}"
+                # Draw bounding box and label on the frame
+                cv2.rectangle(self.cap_device, (x1, y1), (x2, y2), (255, 255, 255), 2)
+                cv2.putText(self.cap_device, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-                    # Draw bounding box and label on the frame
-                    cv2.rectangle(gray, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(gray, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            # Overlay the last detected information on the frame
+            if last_key_command and last_bbox:
+                top_left = tuple(map(int, last_bbox[0]))
+                bottom_right = tuple(map(int, last_bbox[2]))
+                cv2.rectangle(cropped_image_bottom, top_left, bottom_right, (0, 255, 0), 2)
 
-                # Overlay the last detected information on the frame
-                if last_key_command and last_bbox:
-                    top_left = tuple(map(int, last_bbox[0]))
-                    bottom_right = tuple(map(int, last_bbox[2]))
-                    cv2.rectangle(cropped_image, top_left, bottom_right, (0, 255, 0), 2)
-
-                    # Put the detected text on the frame
-                    cv2.putText(cropped_image, last_key_command, top_left,
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
+                # Put the detected text on the frame
+                cv2.putText(cropped_image_bottom, last_key_command, top_left,
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
 
                 # Display the frame (with or without overlays) in a single window
-                cv2.imshow('Camera Feed - Press q to exit', gray)
-
-                # Press 'q' to break the loop and exit
-                cv2.waitKey(0)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    # Release the camera and close all OpenCV windows
-                    self.cap_device.release()
-                    cv2.destroyAllWindows()
-#TODO: Get it to stop making all of the windows now. But it is debug so maybe its ok.
-                    ## ok instead you should have it display each window better.
+                cv2.imshow("Original Image", self.cap_device)
+                cv2.imshow("Cropped Bottom Image", cropped_image_bottom)
+                cv2.imshow("Cropped TopRight Image", cropped_image_topright)
             else:
                 print(f"No key command found. Unrecognized text")
-
+                cv2.imshow("Original Image", self.cap_device)
+                cv2.imshow("Cropped Bottom Image", cropped_image_bottom)
+                cv2.imshow("Cropped TopRight Image", cropped_image_topright)
+            
+            cv2.waitKey(0)  # Wait indefinitely for a key press
+            cv2.destroyAllWindows()
 
         else:
             last_key_command = None

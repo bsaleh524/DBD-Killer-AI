@@ -176,7 +176,6 @@ class Agent:
 
 # implement this into camera
     def read_screen_input(self):
-        
         # Determine if we want to test on an image first
         if self.test_image:
             last_key_command = None
@@ -262,27 +261,32 @@ class Agent:
                 if i == fps*self.frame_check_multiplier: 
                     print("OCR processing interval reached.")  #TODO: add into logging
                     i = 0
-                    # Convert frame to grayscale (optional but improves OCR performance)
+                    # Convert frame to grayscale to improve OCR performance. Remove if slow
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                     
+                    # Requires cropped bottom section
+                    cropped_image_bottom = crop_bottom_center(gray)
+                    cropped_image_topright = crop_top_right(gray)
+
                     # Perform text detection
-                    key_command, bbox = get_interaction_text(self.ocr_model, gray, self.action_dict)
+                    key_command_bottom, bbox = get_interaction_text(self.ocr_model, cropped_image_bottom, self.action_dict)
+                    reward_topright, _ = get_interaction_text(self.ocr_model, cropped_image_topright, self.action_dict)
 
                     # DEBUG: Display results on the frame (Optional: for debugging/visualization)
                     # for (bbox, text, prob) in results:
                     # Draw bounding box around detected text
-                    if key_command:
-                        last_key_command = key_command
+                    if key_command_bottom:
+                        last_key_command = key_command_bottom
                         last_bbox = bbox
                         # Log detected text to a file
                         # log_to_file(text)
 
-                        print(f"Final Command: {key_command}")
+                        print(f"Final Command: {key_command_bottom}")
                         # Do the command
                         print('\nKey Down')
-                        pyautogui.keyDown(key_command)
+                        pyautogui.keyDown(key_command_bottom)
                         time.sleep(2)
-                        pyautogui.keyUp(key_command)
+                        pyautogui.keyUp(key_command_bottom)
                         print('\nKey Up')
 
                 # YOLO inference on the current frame
@@ -298,8 +302,8 @@ class Agent:
                     label = f"{self.obj_det.names[cls]} {conf:.2f}"
 
                     # Draw bounding box and label on the frame
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.rectangle(self.cap_device, (x1, y1), (x2, y2), (255, 255, 255), 2)
+                    cv2.putText(self.cap_device, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
                 # Overlay the last detected information on the frame
                 if last_key_command and last_bbox:
@@ -311,15 +315,15 @@ class Agent:
                     cv2.putText(frame, last_key_command, top_left,
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
 
-                # Display the frame (with or without overlays) in a single window
-                cv2.imshow('Camera Feed - Press q to exit', frame)
+                    # Display the frame (with or without overlays) in a single window
+                    cv2.imshow('Camera Feed - Press q to exit', frame)
 
-                # Press 'q' to break the loop and exit
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    # Release the camera and close all OpenCV windows
-                    self.cap_device.release()
-                    cv2.destroyAllWindows()
-                    break
+                    # Press 'q' to break the loop and exit
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        # Release the camera and close all OpenCV windows
+                        self.cap_device.release()
+                        cv2.destroyAllWindows()
+                        break
 
 def main() -> None:
     test_image = True

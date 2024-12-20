@@ -40,7 +40,7 @@ def setup_reader_and_camera(test_image=False, device=0, height=480, width=640):
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     else:
-        cap = cv2.imread('/Users/mreagles524/Documents/gitrepos/projects/DBD-Killer-AI/test/eyes/topright_test.png') #damage.png
+        cap = cv2.imread('/Users/mreagles524/Documents/gitrepos/projects/DBD-Killer-AI/test/eyes/ocr_test.png') #damage.png
         return reader, cap
 
 def get_state_commands(state: str = "SURVEY", path_to_yaml: str = "text_to_action.yaml"):

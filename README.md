@@ -6,7 +6,16 @@ Dead By Daylight Killer AI
 
 An Object detection and tracking model for a killer in Dead by Daylight. This repo's goal is stand up an AI that will hunt, chase, kill, and hook survivors that are identified while navigating between generators without any human input. 
 
-Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. Labeling was done manually through [Roboflow](roboflow.com). 
+Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. Labeling was done manually through [Roboflow](roboflow.com). Text detection is accomplished using [EasyOCR](https://github.com/JaidedAI/EasyOCR).
+
+
+## Milestones
+
+1. Chase one survivor, hit them twice, and hook the survivor (no RL).
+2. Train a model to navigate using RL.
+4. TBD
+5. TBD
+6. Face off against Twitch Streamers
 
 ## System Diagram:
 
@@ -18,14 +27,14 @@ Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. 
 
 ## What this repository does:
 
-- [ ] Object Detection: Detect various in-game objects:
+- [ ] Object Detection
     - [x] Generators
     - [X] Pallets
     - [x] Hooks
     - [X] Survivors
-    - [ ] Downed Survivors
-    - [ ] Activity
-    - [ ] Exit Gate
+    - [X] Downed Survivors
+    - [X] Activity
+    - [X] Exit Gate
     - [ ] Hatchets (Huntress)
     - [ ] Traps (Trapper)
 - [ ] Track Survivors that actively move in the environment using DeepSORT.

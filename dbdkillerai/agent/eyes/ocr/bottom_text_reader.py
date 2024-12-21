@@ -5,7 +5,7 @@ import cv2
 import yaml
 import pyautogui
 import time
-
+from pathlib import Path
 from PIL import Image as pil
 from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
@@ -40,7 +40,13 @@ def setup_reader_and_camera(test_image=False, device=0, height=480, width=640):
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     else:
-        cap = cv2.imread('/Users/mreagles524/Documents/gitrepos/projects/DBD-Killer-AI/test/eyes/ocr_test.png') #damage.png
+        # Get the current script's directory
+        script_dir = Path(__file__).resolve().parent
+
+        # Navigate to the desired file relative to the script's directory
+        file_path = script_dir.parents[3] / 'test' / 'eyes' / 'ocr_test.png'  # Adjust based on your repo structure
+
+        cap = cv2.imread(file_path)
         return reader, cap
 
 def get_state_commands(state: str = "SURVEY", path_to_yaml: str = "text_to_action.yaml"):

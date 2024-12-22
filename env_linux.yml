@@ -25,12 +25,12 @@ dependencies:
 # conda activate dbd_ai
 
 #### Need to create Xauthority file ####
-touch ~/.Xauthority
+# touch ~/.Xauthority
 
-# Generate the magic cookie with 128 bit hex encoding
-xauth add ${HOST}:0 . $(xxd -l 16 -p /dev/urandom)
+## Generate the magic cookie with 128 bit hex encoding
+# xauth add ${HOST}:0 . $(xxd -l 16 -p /dev/urandom)
 
-# Verify the result and it shouldn't show any error
-xauth list
+## Verify the result and it shouldn't show any error
+# xauth list
 
 ########################################

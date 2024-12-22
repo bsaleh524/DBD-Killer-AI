@@ -47,7 +47,7 @@ def setup_reader_and_camera(test_image=False, device=0, height=480, width=640):
         file_path = script_dir.parents[3] / 'test' / 'eyes' / 'ocr_test.png'  # Adjust based on your repo structure
 
         cap = cv2.imread(file_path)
-        return reader, cap
+    return reader, cap
 
 def get_state_commands(state: str = "SURVEY", path_to_yaml: str = "text_to_action.yaml"):
     # Read in command dictionary for the given state

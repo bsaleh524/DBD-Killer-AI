@@ -1,3 +1,0 @@
-conda install -y -c anaconda easyocr pyyaml
-pip install roboflow, opencv -y
-conda install -y -c pytorch -c nvidia -c conda-forge pytorch torchvision pytorch-cuda=12.1 ultralytics pyyaml pyautogui

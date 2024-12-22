@@ -9,11 +9,11 @@ from PIL import Image as pil
 from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
     pil.ANTIALIAS=pil.LANCZOS
-from eyes.ocr.bottom_text_reader import (
+from dbdkillerai.agent.eyes.ocr.bottom_text_reader import (
     setup_reader_and_camera, get_state_commands,
     get_interaction_text, 
     )
-from eyes.ocr.crop_images import crop_bottom_center, crop_top_right
+from dbdkillerai.agent.eyes.ocr.crop_images import crop_bottom_center, crop_top_right
 if torch.cuda.is_available():
     Device = torch.device("cuda")
 elif torch.backends.mps.is_available():
@@ -151,8 +151,8 @@ class Agent:
         self.ocr_model, self.cap_device = \
             setup_reader_and_camera(test_image=self.test_image,
                                     device=0,
-                                    height=480,
-                                    width=640
+                                    height=720,
+                                    width=1280
             )
         
         # Setup SURVEY values since SURVEY is first state.
@@ -176,157 +176,80 @@ class Agent:
 
 # implement this into camera
     def read_screen_input(self):
-        # Determine if we want to test on an image first
-        if self.test_image:
-            last_key_command = None
-            last_bbox = None
-            # Convert frame to grayscale (optional but improves OCR performance)
-            gray = cv2.cvtColor(self.cap_device, cv2.COLOR_BGR2GRAY)
-            
-            # Requires cropped bottom section
-            cropped_image_bottom = crop_bottom_center(gray)
-            cropped_image_topright = crop_top_right(gray)
+        last_key_command = None
+        last_bbox = None
 
-            # Perform text detection
-            key_command_bottom, bbox = get_interaction_text(self.ocr_model, cropped_image_bottom, self.action_dict)
-            reward_topright, _ = get_interaction_text(self.ocr_model, cropped_image_topright, self.action_dict)
-            # Check if a key was pressed
-            if key_command_bottom:
-                last_key_command = key_command_bottom
-                last_bbox = bbox
-                # Log detected text to a file
-                # log_to_file(text)
+        fps = self.cap_device.get(cv2.CAP_PROP_FPS)
+        frame_count = 0
 
-                print(f"Final Command: {key_command_bottom}")
-                # Do the command
-                print('\nKey Down')
-                print('\nKey Up')
+        while True:
+            # Capture the next frame
+            ret, frame = self.cap_device.read()
+            if not ret:
+                print("Failed to grab frame.")
+                break
 
-            # YOLO inference on the current frame
-            yolo_results = self.obj_det.predict(
-                source=self.cap_device, conf=0.2, show=False)
+            frame_count += 1
 
-            # Overlay YOLO predictions on the frame
+            # OCR processing at specific frame intervals
+            if frame_count >= fps * self.frame_check_multiplier:
+                frame_count = 0
+                print("Performing OCR...")
+
+                # Convert to grayscale for OCR
+                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+                # Crop and perform OCR
+                cropped_image_bottom = crop_bottom_center(gray_frame)
+                cropped_image_topright = crop_top_right(gray_frame)
+
+                key_command_bottom, bbox = get_interaction_text(
+                    self.ocr_model, cropped_image_bottom, self.action_dict)
+                reward_topright, _ = get_interaction_text(
+                    self.ocr_model, cropped_image_topright, self.action_dict)
+
+                if key_command_bottom:
+                    last_key_command = key_command_bottom
+                    last_bbox = bbox
+
+                    # Simulate the keyboard command
+                    print(f"Detected Command: {key_command_bottom}")
+                    # pyautogui.keyDown(key_command_bottom)
+                    time.sleep(2)
+                    # pyautogui.keyUp(key_command_bottom)
+
+            # YOLO detection
+            yolo_results = self.obj_det.predict(source=frame, conf=0.2, show=False)
+
+            # Draw YOLO predictions on the frame
             for result in yolo_results[0].boxes:
-                # Extract coordinates, class, and confidence
                 x1, y1, x2, y2 = map(int, result.xyxy[0])
                 cls = int(result.cls)
                 conf = float(result.conf)
                 label = f"{self.obj_det.names[cls]} {conf:.2f}"
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
+                cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-                # Draw bounding box and label on the frame
-                cv2.rectangle(self.cap_device, (x1, y1), (x2, y2), (255, 255, 255), 2)
-                cv2.putText(self.cap_device, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-            # Overlay the last detected information on the frame
+            # Highlight OCR results if available
             if last_key_command and last_bbox:
                 top_left = tuple(map(int, last_bbox[0]))
                 bottom_right = tuple(map(int, last_bbox[2]))
-                cv2.rectangle(cropped_image_bottom, top_left, bottom_right, (0, 255, 0), 2)
+                cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
+                cv2.putText(frame, last_key_command, top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
-                # Put the detected text on the frame
-                cv2.putText(cropped_image_bottom, last_key_command, top_left,
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
+            # Display the updated frame
+            cv2.imshow('Camera Feed - Press q to exit', frame)
 
-                # Display the frame (with or without overlays) in a single window
-                cv2.imshow("Original Image", self.cap_device)
-                cv2.imshow("Cropped Bottom Image", cropped_image_bottom)
-                cv2.imshow("Cropped TopRight Image", cropped_image_topright)
-            else:
-                print(f"No key command found. Unrecognized text")
-                cv2.imshow("Original Image", self.cap_device)
-                cv2.imshow("Cropped Bottom Image", cropped_image_bottom)
-                cv2.imshow("Cropped TopRight Image", cropped_image_topright)
-            
-            cv2.waitKey(0)  # Wait indefinitely for a key press
-            cv2.destroyAllWindows()
+            # Exit loop if 'q' is pressed
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
-        else:
-            last_key_command = None
-            last_bbox = None
-
-            # Loop to continuously read the camera input
-            fps = self.cap_device.get(cv2.CAP_PROP_FPS)
-            i = 0
-
-            while True:
-                # Capture each frame from the camera
-                ret, frame = self.cap_device.read()
-                if not ret:
-                    print("Failed to grab frame.")
-                    break
-                
-                i += 1
-                # How many frames until a text check is done. Based on the frame multiplier.
-                if i == fps*self.frame_check_multiplier: 
-                    print("OCR processing interval reached.")  #TODO: add into logging
-                    i = 0
-                    # Convert frame to grayscale to improve OCR performance. Remove if slow
-                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    
-                    # Requires cropped bottom section
-                    cropped_image_bottom = crop_bottom_center(gray)
-                    cropped_image_topright = crop_top_right(gray)
-
-                    # Perform text detection
-                    key_command_bottom, bbox = get_interaction_text(self.ocr_model, cropped_image_bottom, self.action_dict)
-                    reward_topright, _ = get_interaction_text(self.ocr_model, cropped_image_topright, self.action_dict)
-
-                    # DEBUG: Display results on the frame (Optional: for debugging/visualization)
-                    # for (bbox, text, prob) in results:
-                    # Draw bounding box around detected text
-                    if key_command_bottom:
-                        last_key_command = key_command_bottom
-                        last_bbox = bbox
-                        # Log detected text to a file
-                        # log_to_file(text)
-
-                        print(f"Final Command: {key_command_bottom}")
-                        # Do the command
-                        print('\nKey Down')
-                        pyautogui.keyDown(key_command_bottom)
-                        time.sleep(2)
-                        pyautogui.keyUp(key_command_bottom)
-                        print('\nKey Up')
-
-                # YOLO inference on the current frame
-                yolo_results = self.obj_det.predict(
-                    source=frame, conf=0.2, show=False)
-
-                # Overlay YOLO predictions on the frame
-                for result in yolo_results[0].boxes:
-                    # Extract coordinates, class, and confidence
-                    x1, y1, x2, y2 = map(int, result.xyxy[0])
-                    cls = int(result.cls)
-                    conf = float(result.conf)
-                    label = f"{self.obj_det.names[cls]} {conf:.2f}"
-
-                    # Draw bounding box and label on the frame
-                    cv2.rectangle(self.cap_device, (x1, y1), (x2, y2), (255, 255, 255), 2)
-                    cv2.putText(self.cap_device, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-                # Overlay the last detected information on the frame
-                if last_key_command and last_bbox:
-                    top_left = tuple(map(int, last_bbox[0]))
-                    bottom_right = tuple(map(int, last_bbox[2]))
-                    cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
-
-                    # Put the detected text on the frame
-                    cv2.putText(frame, last_key_command, top_left,
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
-
-                    # Display the frame (with or without overlays) in a single window
-                    cv2.imshow('Camera Feed - Press q to exit', frame)
-
-                    # Press 'q' to break the loop and exit
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        # Release the camera and close all OpenCV windows
-                        self.cap_device.release()
-                        cv2.destroyAllWindows()
-                        break
+        # Release resources
+        self.cap_device.release()
+        cv2.destroyAllWindows()
 
 def main() -> None:
-    test_image = True
+    test_image = False
     killer = Agent(yolo_model_path="models/yolov8n.pt", test_image=test_image)
     killer.read_screen_input()
     

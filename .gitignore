@@ -99,3 +99,6 @@ runs/
 *.pb
 *.cache
 data.yaml
+
+# Model exceptions
+./models/*.pt

@@ -1,0 +1,1 @@
+Meant for generated stuff, like outputs of model trainings. Confusion matrices, Curves, etc.

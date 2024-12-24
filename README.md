@@ -1,7 +1,7 @@
 Dead By Daylight Killer AI
 ==============================
 
-<img src="reports/figures/yolov8_train8.gif" width=700>
+<img src="references/figures/yolov8_train8.gif" width=700>
 
 
 An Object detection and tracking model for a killer in Dead by Daylight. This repo's goal is stand up an AI that will hunt, chase, kill, and hook survivors that are identified while navigating between generators without any human input. 
@@ -19,11 +19,11 @@ Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. 
 
 ## System Diagram:
 
-<img src="reports/figures/architecture.jpg" height=400>
+<img src="references/figures/architecture.jpg" height=400>
 
 ### State Diagram:
 
-<img src="reports/figures/StateSpace.jpg" height=400>
+<img src="references/figures/StateSpace.jpg" height=400>
 
 ## What this repository does:
 

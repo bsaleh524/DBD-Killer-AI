@@ -6,6 +6,7 @@ dependencies:
   - python=3.11.8
   - pillow=9.4.0
   - ipykernel
+  - click
   - pip
   - pip:
     # Install PyTorch nightly using the correct index URL and --pre flag

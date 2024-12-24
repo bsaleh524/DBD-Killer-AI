@@ -101,4 +101,4 @@ runs/
 data.yaml
 
 # Model exceptions
-./models/*.pt
+*.pt

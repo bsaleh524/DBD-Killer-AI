@@ -23,6 +23,6 @@ dependencies:
     # - opencv-python==4.9.0.80
 
 # For the MacBook
-# conda env remove -n dbd_ai 
+# conda env remove -n dbd_ai #--all?
 # conda env create -f env_mac.yml
 # conda activate dbd_ai

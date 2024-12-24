@@ -6,6 +6,7 @@ dependencies:
   - python=3.11.8
   - pillow=9.4.0
   - ipykernel
+  - ipywidgets
   - click
   - pip
   - pip:
@@ -18,6 +19,7 @@ dependencies:
   - pip:
     - pyautogui
     - roboflow
+    - supervision
     - ultralytics
     - easyocr
     # - opencv-python==4.9.0.80

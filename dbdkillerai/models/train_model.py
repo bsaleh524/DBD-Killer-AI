@@ -4,7 +4,7 @@ import os
 # ultralytics.checks()
 
 def train_yolo(yolo_model: YOLO, data_yml: str, epochs: int = 150, imgsz: int=800,
-               plots: bool = True, workers: int = 0, device: Any = 0):
+               plots: bool = True, workers: int = 0, device: Any = 0, patience: int = 0):
     # Create a new YOLO model from scratch
     # model = YOLO(model=yolo_model)
 
@@ -14,7 +14,8 @@ def train_yolo(yolo_model: YOLO, data_yml: str, epochs: int = 150, imgsz: int=80
                         imgsz=imgsz,
                         plots=plots,
                         workers=workers,
-                        device=device)
+                        device=device,
+                        patience=patience)
 
     return yolo_model, results_train
 

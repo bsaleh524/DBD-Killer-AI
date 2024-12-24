@@ -8,6 +8,7 @@ dependencies:
   - python=3.11.8
   - pillow=9.4.0
   - ipykernel
+  - ipywidgets
   - click
   - pytorch
   - torchvision
@@ -17,6 +18,7 @@ dependencies:
   - pip:
     - pyautogui
     - roboflow
+    - supervision
     - ultralytics
     - easyocr
 

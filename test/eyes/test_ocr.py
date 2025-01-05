@@ -46,7 +46,7 @@ def read_stream_input(killer_ai: Agent):
 
         # YOLO inference on the current frame
         yolo_results = killer_ai.obj_det.predict(
-            source=killer_ai.cap_device, conf=0.2, show=False)
+            source=killer_ai.cap_device, conf=0.8, show=False)
 
         # Overlay YOLO predictions on the frame
         for result in yolo_results[0].boxes:
@@ -89,4 +89,5 @@ def test_screen_input_with_image():
     Killer = Agent("models/yolov8n.pt", test_image=True)
     read_stream_input(Killer)
 
-test_screen_input_with_image()
+if __name__ == "__main__":
+    test_screen_input_with_image()

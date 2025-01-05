@@ -151,8 +151,8 @@ class Agent:
         self.ocr_model, self.cap_device = \
             setup_reader_and_camera(test_image=self.test_image,
                                     device=0,
-                                    height=720,
-                                    width=1280
+                                    height=720, #640  #TODO; make reduced and big sizes
+                                    width=1280, #480
             )
         
         # Setup SURVEY values since SURVEY is first state.
@@ -250,7 +250,7 @@ class Agent:
 
 def main() -> None:
     test_image = False
-    killer = Agent(yolo_model_path="models/yolov8n.pt", test_image=test_image)
+    killer = Agent(yolo_model_path="dbdkillerai/models/dataset/9/best.pt", test_image=test_image)
     killer.read_screen_input()
     
 if __name__ == "__main__":

@@ -12,10 +12,11 @@ Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. 
 ## Milestones
 
 1. Chase one survivor, hit them twice, and hook the survivor (no RL).
-2. Train a model to navigate using RL.
-4. TBD
-5. TBD
-6. Face off against Twitch Streamers
+2. Determine how far objects are. Make a minimap
+2. Train a model to navigate using RL. It should use our distances.
+4. Setup continuous RL training.
+5. Have it win against bots. At least 2-3 kills.
+6. Face off against Twitch Streamers.
 
 ## System Diagram:
 

@@ -2,7 +2,8 @@ import cv2
 
 def crop_bottom_center(image, width_fraction=0.3, height_fraction=0.15):
     """
-    Crop the bottom center portion of the image.
+    Crop the bottom center portion of the image to recognize
+    commands that the agent needs, such as DEsTROY or PICK UP.
 
     :param image: Input image
     :param width_fraction: Fraction of the image width for the crop (0-1)
@@ -28,7 +29,8 @@ def crop_bottom_center(image, width_fraction=0.3, height_fraction=0.15):
 
 def crop_top_right(image, width_fraction=0.15, height_fraction=0.33):
     """
-    Crop the top-right portion of the image.
+    Crop the top-right portion of the image to recognize rewards,
+    such as SURVIVOR FOUND and HOOKED.
 
     :param image: Input image
     :param width_fraction: Fraction of the image width for the crop (0-1)

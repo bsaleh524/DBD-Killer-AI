@@ -59,6 +59,32 @@ The killer moves through `pyautogui` to issue commands in order to move about th
 
 **Work in Progress**
 
+### ENvironment
+
+If you are on a Mac, run:
+
+```bash
+conda env create -f env_mac.yml
+```
+
+If you are on the WSL2 Ubuntu machine(or any other linux), run:
+
+```bash
+# Run these bottom three if you don't have an ~/.Xauthority file
+touch ~/.Xauthority
+xauth add ${HOST}:0 . $(xxd -l 16 -p /dev/urandom)
+xauth list
+
+conda env create -f env_linux.yml
+```
+
+Then, for both machines, run: 
+
+```bash
+conda activate dbd_ai
+pip install .
+```
+
 ### Testing the Agent
 
 This portion will cover the instructions for running the agent. Two portions need to be accomplished before running: Rebuilding the WSL2 image(kernel?) to include the ability to register USB video capture devices and then attaching the device to your WSL2 instance. If you've already done these steps prior, you can skip to the code execution section.
@@ -104,7 +130,7 @@ Use the `test_ocr.py` script located in the `test/` folder to ensure the agent p
 
 And, now that you have the camera module, the Agent relies entirely on the fact that you should have only one camera/capture card connected, which is what you just attached and tested. 
 
-Simply run `main_agent.py`. Have you connected camera device play a youtube video to see detections.
+Connect the Macbook to the PC using the USB capture card as a device input. Load the game on the Mac's newest screen. Then, run `main_agent.py`. An easy test before running the game on NVIDIA GeForce NOW is to use a Youtube video.
 
 -----------
 Project Organization

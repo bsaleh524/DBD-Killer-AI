@@ -208,6 +208,10 @@ class Agent:
                 reward_topright, _ = get_interaction_text(
                     self.ocr_model, cropped_image_topright, self.action_dict)
 
+                # send command to "neck" module call. "neck" must be imported
+                # the get interaction text should be strictly an "arms" piece, 
+                # not an "eyes" piece. 
+
                 if key_command_bottom:
                     last_key_command = key_command_bottom
                     last_bbox = bbox

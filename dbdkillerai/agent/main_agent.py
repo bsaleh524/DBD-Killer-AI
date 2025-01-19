@@ -208,6 +208,9 @@ class Agent:
                 reward_topright, _ = get_interaction_text(
                     self.ocr_model, cropped_image_topright, self.action_dict)
 
+                #TODO: Send reward text to brain
+                #TODO: send detected action text on bottom to brain
+
                 # send command to "neck" module call. "neck" must be imported
                 # the get interaction text should be strictly an "arms" piece, 
                 # not an "eyes" piece. 
@@ -224,6 +227,9 @@ class Agent:
 
             # YOLO detection
             yolo_results = self.obj_det.predict(source=frame, conf=0.2, show=False)
+
+            # Send detections to Brain
+            
 
             # Draw YOLO predictions on the frame
             for result in yolo_results[0].boxes:

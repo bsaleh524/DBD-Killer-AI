@@ -5,15 +5,21 @@ import torch
 import cv2
 import pyautogui
 import time
+import queue
+import threading
 from PIL import Image as pil
 from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
     pil.ANTIALIAS=pil.LANCZOS
+
 from dbdkillerai.agent.eyes.ocr.bottom_text_reader import (
     setup_reader_and_camera, get_state_commands,
     get_interaction_text, 
     )
+from dbdkillerai.agent.arms.right_arm import right_arm_worker
+from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker
 from dbdkillerai.agent.eyes.ocr.crop_images import crop_bottom_center, crop_top_right
+
 if torch.cuda.is_available():
     Device = torch.device("cuda")
 elif torch.backends.mps.is_available():
@@ -155,6 +161,37 @@ class Agent:
                                     width=1280, #480
             )
         
+        # Setup our queues for limbs
+        self.right_arm_queue = queue.Queue()
+        # self.left_arm_queue = queue.Queue()
+        self.vertical_legs_queue = queue.Queue()
+        self.horizontal_legs_queue = queue.Queue()
+
+        # Setup threads of limbs
+        self.right_arm_thread = threading.Thread(target=right_arm_worker,
+                                                 args=(self.right_arm_queue,),
+                                                 daemon=True)
+        self.vertical_legs_thread = threading.Thread(target=vertical_legs_worker,
+                                                 args=(self.vertical_legs_queue,),
+                                                 daemon=True)
+        self.horizontal_legs_thread = threading.Thread(target=horizontal_legs_worker,
+                                                 args=(self.horizontal_legs_queue,),
+                                                 daemon=True)
+
+        # Start all threads
+        self.right_arm_thread.start()
+        self.vertical_legs_thread.start()
+        self.horizontal_legs_thread.start()
+
+        #TODO: To kick off the limbs(for the future brain), do
+        ##arms:
+            # self.arms_queue.put(command)  # `command` is anything
+        # Legs:
+        # if vertical_command:
+        #     self.vertical_legs_queue.put(vertical_command) # "w" or "s"
+        # if horizontal_command:
+        #     self.horizontal_legs_queue.put(horizontal_command) # "a" or "d"
+
         # Setup SURVEY values since SURVEY is first state.
         self.state_name = "SURVEY"
         self.action_dict = get_state_commands(
@@ -173,6 +210,15 @@ class Agent:
 
     def switch_to_hook(self):
         self.state.switch_to_hook(self)
+
+    def stop_all_threads(self):
+        """Gracefully stop all threads."""
+        self.arms_queue.put("STOP")
+        self.vertical_legs_queue.put("STOP")
+        self.horizontal_legs_queue.put("STOP")
+        self.arms_thread.join()
+        self.vertical_legs_thread.join()
+        self.horizontal_legs_thread.join()
 
 # implement this into camera
     def read_screen_input(self):
@@ -229,7 +275,7 @@ class Agent:
             yolo_results = self.obj_det.predict(source=frame, conf=0.2, show=False)
 
             # Send detections to Brain
-            
+
 
             # Draw YOLO predictions on the frame
             for result in yolo_results[0].boxes:

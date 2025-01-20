@@ -33,3 +33,7 @@ o	Input:
 o	Movement(pyautogui)
 o	Input:
 	Commands from Brain
+
+
+* threading: concurrent tasks. io bound. Waiting for input and output operations.
+* multiprocessing: Parallel

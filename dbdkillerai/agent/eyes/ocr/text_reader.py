@@ -7,10 +7,34 @@ import pyautogui
 import time
 from pathlib import Path
 from PIL import Image as pil
+
+from dbdkillerai.agent.eyes.ocr.ocr_preproc import crop_bottom_center, crop_top_right, get_grayscale_image
+
+# Update the PIL library to use the LANCZOS filter for better image resizing
 from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
     pil.ANTIALIAS=pil.LANCZOS
 
+def ocr_pipeline(frame, action_dict, ocr_model):
+    # Convert to grayscale for better imaging
+    gray = get_grayscale_image(frame)
+
+    # Crop the images
+    cropped_image_bottom = crop_bottom_center(gray)
+    cropped_image_topright = crop_top_right(gray)
+
+    # Use OCR to read the text. TODO: multiprocessing
+    key_command_bottom, bbox_bottom_text = get_interaction_text(
+        ocr_model, cropped_image_bottom, action_dict)
+    reward_text_topright, _ = get_interaction_text(
+        ocr_model, cropped_image_topright, action_dict)
+    
+    #TODO; instead of returning text, add detected commands to the arms queue.
+
+    return key_command_bottom, bbox_bottom_text, reward_text_topright
+
+#TODO; we want to send the preproc to get_interaction text. 
+# 
 
 def get_interaction_text(reader: easyocr.Reader, image, command_dict):
     """Read the text from the given screencapture frame/image and return key."""

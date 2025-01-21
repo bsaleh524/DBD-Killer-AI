@@ -3,7 +3,7 @@ import torch
 import cv2
 from PIL import Image as pil
 from pkg_resources import parse_version
-from dbdkillerai.agent.eyes.ocr import crop_images, bottom_text_reader
+from dbdkillerai.agent.eyes.ocr import ocr_preproc, text_reader
 from dbdkillerai.agent.main_agent import Agent
 
 
@@ -25,12 +25,12 @@ def read_stream_input(killer_ai: Agent):
         gray = cv2.cvtColor(killer_ai.cap_device, cv2.COLOR_BGR2GRAY)
         
         # Requires cropped bottom section
-        cropped_image_bottom = crop_images.crop_bottom_center(gray)
-        cropped_image_topright = crop_images.crop_top_right(gray)
+        cropped_image_bottom = ocr_preproc.crop_bottom_center(gray)
+        cropped_image_topright = ocr_preproc.crop_top_right(gray)
 
         # Perform text detection
-        key_command_bottom, bbox = bottom_text_reader.get_interaction_text(killer_ai.ocr_model, cropped_image_bottom, killer_ai.action_dict)
-        reward_topright, _ = bottom_text_reader.get_interaction_text(killer_ai.ocr_model, cropped_image_topright, killer_ai.action_dict)
+        key_command_bottom, bbox = text_reader.get_interaction_text(killer_ai.ocr_model, cropped_image_bottom, killer_ai.action_dict)
+        reward_topright, _ = text_reader.get_interaction_text(killer_ai.ocr_model, cropped_image_topright, killer_ai.action_dict)
         
         # Check if a key was pressed
         if key_command_bottom:

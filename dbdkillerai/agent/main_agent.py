@@ -12,13 +12,14 @@ from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
     pil.ANTIALIAS=pil.LANCZOS
 
-from dbdkillerai.agent.eyes.ocr.bottom_text_reader import (
+from dbdkillerai.agent.eyes.ocr.text_reader import (
     setup_reader_and_camera, get_state_commands,
     get_interaction_text, 
     )
 from dbdkillerai.agent.arms.right_arm import right_arm_worker
 from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker
-from dbdkillerai.agent.eyes.ocr.crop_images import crop_bottom_center, crop_top_right
+from dbdkillerai.agent.eyes.ocr.ocr_preproc import ocr_pipeline
+from dbdkillerai.agent.eyes.eyes import read_screen_capture
 
 if torch.cuda.is_available():
     Device = torch.device("cuda")
@@ -157,23 +158,20 @@ class Agent:
         self.ocr_model, self.cap_device = \
             setup_reader_and_camera(test_image=self.test_image,
                                     device=0,
-                                    height=720, #640  #TODO; make reduced and big sizes
+                                    height=720, #640  #TODO; make reduced and big sizes as presets
                                     width=1280, #480
             )
         
-        # Setup our queues for limbs
+        # Setup our queues and threads for limbs
         self.right_arm_queue = queue.Queue()
-        # self.left_arm_queue = queue.Queue()
-        self.vertical_legs_queue = queue.Queue()
-        self.horizontal_legs_queue = queue.Queue()
-
-        # Setup threads of limbs
         self.right_arm_thread = threading.Thread(target=right_arm_worker,
                                                  args=(self.right_arm_queue,),
                                                  daemon=True)
+        self.vertical_legs_queue = queue.Queue()
         self.vertical_legs_thread = threading.Thread(target=vertical_legs_worker,
                                                  args=(self.vertical_legs_queue,),
                                                  daemon=True)
+        self.horizontal_legs_queue = queue.Queue()
         self.horizontal_legs_thread = threading.Thread(target=horizontal_legs_worker,
                                                  args=(self.horizontal_legs_queue,),
                                                  daemon=True)
@@ -200,6 +198,7 @@ class Agent:
         )
         self.state = SurveyState()
         self.frame_check_multiplier = 2
+        self.fps = self.cap_device.get(cv2.CAP_PROP_FPS) #THREAD
 
 
     def switch_to_survey(self):
@@ -219,51 +218,61 @@ class Agent:
         self.arms_thread.join()
         self.vertical_legs_thread.join()
         self.horizontal_legs_thread.join()
+        self.read_input_thread.join()
 
 # implement this into camera
     def read_screen_input(self):
         last_key_command = None
         last_bbox = None
-
-        fps = self.cap_device.get(cv2.CAP_PROP_FPS)
         frame_count = 0
 
-        while True:
-            # Capture the next frame
-            ret, frame = self.cap_device.read()
-            if not ret:
-                print("Failed to grab frame.")
-                break
+        # Setup thread for reading input and only start it when
+        # the agent itself starts operating
 
+        self.screen_queue = queue.Queue()
+        self.read_input_thread = threading.Thread(target=read_screen_capture,
+                                                 args=(self.right_arm_queue, self.screen_queue),
+                                                 daemon=True)
+        print("Sleeping to setup Agent...")
+        self.read_input_thread.start()
+        
+        ## Possible race condition. queue empty before while loop
+
+        while True:
+            # Capture the next frame n the screen queue
+            frame = self.screen_queue.get() #TODO: Test that this works
             frame_count += 1
 
             # OCR processing at specific frame intervals
-            if frame_count >= fps * self.frame_check_multiplier:
+            if frame_count >= self.fps * self.frame_check_multiplier:
                 frame_count = 0
                 print("Performing OCR...")
 
-                # Convert to grayscale for OCR
-                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                ###### PIPELINE ######
+                # Draw out how the different queues align, like in our AWS class.
+                # Ask GPT if multiprocessing requries queues. It doesnt look like
+                # it needs it. Refer to black notebook. Make all processing here
+                # a single, multiprocessing pipeline that takes in a copy of
+                # the frame and places the results on a brain queue, if needed.
 
-                # Crop and perform OCR
-                cropped_image_bottom = crop_bottom_center(gray_frame)
-                cropped_image_topright = crop_top_right(gray_frame)
+                # Use OCR for text. (TODO: multiprocessing)
+                key_command_bottom, bbox_bottom_text, _ = ocr_pipeline(
+                    frame=frame,
+                    action_dict=self.action_dict,
+                    ocr_model=self.ocr_model)
 
-                key_command_bottom, bbox = get_interaction_text(
-                    self.ocr_model, cropped_image_bottom, self.action_dict)
-                reward_topright, _ = get_interaction_text(
-                    self.ocr_model, cropped_image_topright, self.action_dict)
-
+                
                 #TODO: Send reward text to brain
                 #TODO: send detected action text on bottom to brain
 
                 # send command to "neck" module call. "neck" must be imported
                 # the get interaction text should be strictly an "arms" piece, 
                 # not an "eyes" piece. 
+                ###### PIPELINE ######
 
                 if key_command_bottom:
                     last_key_command = key_command_bottom
-                    last_bbox = bbox
+                    last_bbox = bbox_bottom_text
 
                     # Simulate the keyboard command
                     print(f"Detected Command: {key_command_bottom}")

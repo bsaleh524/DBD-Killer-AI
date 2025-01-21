@@ -15,10 +15,6 @@ def right_arm_worker(arms_queue):
         pyautogui.leftClick(duration=0.8)
         arms_queue.task_done()
 
-def left_arm_worker(arms_queue):
-    #TBD: Add in killer special ability queue.
-    pass
-
 #TODO: Make test for these
 
 if __name__ == "__main__":

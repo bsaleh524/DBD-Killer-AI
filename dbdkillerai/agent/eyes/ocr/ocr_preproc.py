@@ -54,6 +54,8 @@ def crop_top_right(image, width_fraction=0.15, height_fraction=0.33):
 
     return cropped_image
 
+def get_grayscale_image(frame):
+    return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 if __name__ == "__main__":
     # Load an image (replace 'image.jpg' with your image path)

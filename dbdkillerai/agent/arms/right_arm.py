@@ -19,6 +19,8 @@ def left_arm_worker(arms_queue):
     #TBD: Add in killer special ability queue.
     pass
 
+#TODO: Make test for these
+
 if __name__ == "__main__":
     # Test out the arm swing
     # Create queues for Arms and Legs commands

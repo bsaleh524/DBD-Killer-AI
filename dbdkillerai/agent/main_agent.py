@@ -7,6 +7,7 @@ import pyautogui
 import time
 import queue
 import threading
+import multiprocessing
 from PIL import Image as pil
 from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
@@ -175,11 +176,21 @@ class Agent:
         self.horizontal_legs_thread = threading.Thread(target=horizontal_legs_worker,
                                                  args=(self.horizontal_legs_queue,),
                                                  daemon=True)
+        self.ocr_queue = queue.Queue()
+        self.ocr_multiproc = multiprocessing.Process(target=ocr_pipeline,
+                                                     args=(self.ocr_queue,
+                                                           self.action_dict,
+                                                           self.ocr_model,
+                                                           self.right_arm_queue),
+                                                     daemon=True)
 
         # Start all threads
         self.right_arm_thread.start()
         self.vertical_legs_thread.start()
         self.horizontal_legs_thread.start()
+
+        # Start off multiprocessing
+        self.ocr_multiproc.start()
 
         #TODO: To kick off the limbs(for the future brain), do
         ##arms:
@@ -220,7 +231,7 @@ class Agent:
         self.horizontal_legs_thread.join()
         self.read_input_thread.join()
 
-# implement this into camera
+    # implement this into camera
     def read_screen_input(self):
         last_key_command = None
         last_bbox = None
@@ -246,7 +257,7 @@ class Agent:
             # OCR processing at specific frame intervals
             if frame_count >= self.fps * self.frame_check_multiplier:
                 frame_count = 0
-                print("Performing OCR...")
+                
 
                 ###### PIPELINE ######
                 # Draw out how the different queues align, like in our AWS class.
@@ -261,7 +272,7 @@ class Agent:
                     action_dict=self.action_dict,
                     ocr_model=self.ocr_model)
 
-                
+
                 #TODO: Send reward text to brain
                 #TODO: send detected action text on bottom to brain
 

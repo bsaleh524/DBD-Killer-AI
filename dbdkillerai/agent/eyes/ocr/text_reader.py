@@ -8,7 +8,8 @@ import time
 from pathlib import Path
 from PIL import Image as pil
 
-from dbdkillerai.agent.eyes.ocr.ocr_preproc import crop_bottom_center, crop_top_right, get_grayscale_image
+from dbdkillerai.agent.eyes.ocr.crop_images import crop_bottom_center, crop_top_right
+from dbdkillerai.agent.eyes.ocr.ocr_preproc import get_grayscale_image
 
 # Update the PIL library to use the LANCZOS filter for better image resizing
 from pkg_resources import parse_version

@@ -19,7 +19,7 @@ from dbdkillerai.agent.eyes.ocr.text_reader import (
     )
 from dbdkillerai.agent.arms.right_arm import right_arm_worker
 from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker
-from dbdkillerai.agent.eyes.ocr.ocr_preproc import ocr_pipeline
+from dbdkillerai.agent.eyes.ocr.text_reader import ocr_pipeline
 from dbdkillerai.agent.eyes.eyes import read_screen_capture
 
 if torch.cuda.is_available():
@@ -163,6 +163,16 @@ class Agent:
                                     width=1280, #480
             )
         
+        # Setup SURVEY values since SURVEY is first state.
+        self.state_name = "SURVEY"
+        self.action_dict = get_state_commands(
+            state=self.state_name,
+            path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
+        )
+        self.state = SurveyState()
+        self.frame_check_multiplier = 2
+        self.fps = self.cap_device.get(cv2.CAP_PROP_FPS) #THREAD
+
         # Setup our queues and threads for limbs
         self.right_arm_queue = queue.Queue()
         self.right_arm_thread = threading.Thread(target=right_arm_worker,
@@ -192,16 +202,6 @@ class Agent:
         #     self.vertical_legs_queue.put(vertical_command) # "w" or "s"
         # if horizontal_command:
         #     self.horizontal_legs_queue.put(horizontal_command) # "a" or "d"
-
-        # Setup SURVEY values since SURVEY is first state.
-        self.state_name = "SURVEY"
-        self.action_dict = get_state_commands(
-            state=self.state_name,
-            path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
-        )
-        self.state = SurveyState()
-        self.frame_check_multiplier = 2
-        self.fps = self.cap_device.get(cv2.CAP_PROP_FPS) #THREAD
 
 
     def switch_to_survey(self):
@@ -234,7 +234,7 @@ class Agent:
 
         self.screen_queue = queue.Queue()
         self.read_input_thread = threading.Thread(target=read_screen_capture,
-                                                 args=(self.right_arm_queue, self.screen_queue),
+                                                 args=(self.cap_device, self.screen_queue),
                                                  daemon=True)
         
         

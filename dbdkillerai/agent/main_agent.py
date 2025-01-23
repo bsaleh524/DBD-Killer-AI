@@ -184,14 +184,6 @@ class Agent:
                                                            self.right_arm_queue),
                                                      daemon=True)
 
-        # Start all threads
-        self.right_arm_thread.start()
-        self.vertical_legs_thread.start()
-        self.horizontal_legs_thread.start()
-
-        # Start off multiprocessing
-        self.ocr_multiproc.start()
-
         #TODO: To kick off the limbs(for the future brain), do
         ##arms:
             # self.arms_queue.put(command)  # `command` is anything
@@ -232,7 +224,7 @@ class Agent:
         self.read_input_thread.join()
 
     # implement this into camera
-    def read_screen_input(self):
+    def start_agent(self):
         last_key_command = None
         last_bbox = None
         frame_count = 0
@@ -244,10 +236,22 @@ class Agent:
         self.read_input_thread = threading.Thread(target=read_screen_capture,
                                                  args=(self.right_arm_queue, self.screen_queue),
                                                  daemon=True)
-        print("Sleeping to setup Agent...")
-        self.read_input_thread.start()
         
-        ## Possible race condition. queue empty before while loop
+        
+        # Start all threads
+        print("Starting all threads and processes...")
+        self.right_arm_thread.start()  # Start Right Arm/Main Attack/M1
+        self.vertical_legs_thread.start()  # Start Vertical Legs/ "w" and "s"
+        self.horizontal_legs_thread.start()  # Start Horizontal Legs/ "a" and "d"
+        self.read_input_thread.start()  # Start Screen Capture for YOLO and OCR Queueing
+
+        # Start off multiprocessing
+        self.ocr_multiproc.start()  # Start OCR Processing for text detection
+        
+        sleep(3)
+        print("Agent is Ready!")
+
+        ## Possible race condition. queues empty before while loop
 
         while True:
             # Capture the next frame n the screen queue
@@ -267,10 +271,10 @@ class Agent:
                 # the frame and places the results on a brain queue, if needed.
 
                 # Use OCR for text. (TODO: multiprocessing)
-                key_command_bottom, bbox_bottom_text, _ = ocr_pipeline(
-                    frame=frame,
-                    action_dict=self.action_dict,
-                    ocr_model=self.ocr_model)
+                # key_command_bottom, bbox_bottom_text, _ = ocr_pipeline(
+                #     frame=frame,
+                #     action_dict=self.action_dict,
+                #     ocr_model=self.ocr_model)
 
 
                 #TODO: Send reward text to brain
@@ -281,21 +285,20 @@ class Agent:
                 # not an "eyes" piece. 
                 ###### PIPELINE ######
 
-                if key_command_bottom:
-                    last_key_command = key_command_bottom
-                    last_bbox = bbox_bottom_text
+                # if key_command_bottom:
+                #     last_key_command = key_command_bottom
+                #     last_bbox = bbox_bottom_text
 
-                    # Simulate the keyboard command
-                    print(f"Detected Command: {key_command_bottom}")
+                #     # Simulate the keyboard command
+                #     print(f"Detected Command: {key_command_bottom}")
                     # pyautogui.keyDown(key_command_bottom)
-                    time.sleep(2)
+                    # time.sleep(2)
                     # pyautogui.keyUp(key_command_bottom)
 
             # YOLO detection
             yolo_results = self.obj_det.predict(source=frame, conf=0.2, show=False)
 
-            # Send detections to Brain
-
+            #TODO: Send detections to Brain
 
             # Draw YOLO predictions on the frame
             for result in yolo_results[0].boxes:
@@ -306,12 +309,12 @@ class Agent:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            # Highlight OCR results if available
-            if last_key_command and last_bbox:
-                top_left = tuple(map(int, last_bbox[0]))
-                bottom_right = tuple(map(int, last_bbox[2]))
-                cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
-                cv2.putText(frame, last_key_command, top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+            # # Highlight OCR results if available
+            # if last_key_command and last_bbox:
+            #     top_left = tuple(map(int, last_bbox[0]))
+            #     bottom_right = tuple(map(int, last_bbox[2]))
+            #     cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
+            #     cv2.putText(frame, last_key_command, top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
             # Display the updated frame
             cv2.imshow('Camera Feed - Press q to exit', frame)
@@ -327,7 +330,7 @@ class Agent:
 def main() -> None:
     test_image = False
     killer = Agent(yolo_model_path="dbdkillerai/models/dataset/9/best.pt", test_image=test_image)
-    killer.read_screen_input()
+    killer.start_agent()
     
 if __name__ == "__main__":
     main()

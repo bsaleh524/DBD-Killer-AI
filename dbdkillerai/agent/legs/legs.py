@@ -45,6 +45,11 @@ def horizontal_legs_worker(horizontal_legs_queue):
             print(f"Horizontal Legs: Unknown command '{command}' received.")
         horizontal_legs_queue.task_done()  # Signal the task is done
 
+# Legs:
+        # if vertical_command:
+        #     self.vertical_legs_queue.put(vertical_command) # "w" or "s"
+        # if horizontal_command:
+        #     self.horizontal_legs_queue.put(horizontal_command) # "a" or "d"
 
 if __name__ == "__main__":
     # Queues for vertical and horizontal movement

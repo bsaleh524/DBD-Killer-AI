@@ -20,6 +20,7 @@ def ocr_pipeline(
     action_dict,
     ocr_model,
     right_arm_queue):
+
     # Convert to grayscale for better imaging
     gray = get_grayscale_image(frame)
 

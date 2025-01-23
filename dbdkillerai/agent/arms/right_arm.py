@@ -11,7 +11,7 @@ def right_arm_worker(arms_queue):
         if command == "STOP":  # Graceful exit condition
             print("ARMS stopping...")
             break
-        print(f"Right Arm(M1): Executing")
+        print(f"ARMS|RIGHT(M!): Executing")
         pyautogui.leftClick(duration=0.8)
         arms_queue.task_done()
 

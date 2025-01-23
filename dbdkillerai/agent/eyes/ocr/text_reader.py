@@ -16,34 +16,34 @@ if parse_version(pil.__version__)>=parse_version('10.0.0'):
     pil.ANTIALIAS=pil.LANCZOS
 
 def ocr_pipeline(
-    frame,
+    ocr_queue,
     action_dict,
     ocr_model,
     right_arm_queue):
+    while True:
+        # Convert to grayscale for better imaging
+        frame = ocr_queue.get() # Get the frame from the queue.
+        gray = get_grayscale_image(frame)
 
-    # Convert to grayscale for better imaging
-    gray = get_grayscale_image(frame)
+        # Crop the images
+        cropped_image_bottom = crop_bottom_center(gray)
+        cropped_image_topright = crop_top_right(gray)
 
-    # Crop the images
-    cropped_image_bottom = crop_bottom_center(gray)
-    cropped_image_topright = crop_top_right(gray)
+        # Use OCR to read the bottom command and reward text.
+        key_command_bottom, bbox_bottom_text = get_interaction_text(
+            ocr_model, cropped_image_bottom, action_dict)
+        reward_text_topright, _ = get_interaction_text(
+            ocr_model, cropped_image_topright, action_dict)
+        
+        # Place the detected commands into the right arm queue
+        if key_command_bottom:
+            right_arm_queue.put(key_command_bottom)
+            print(f"EYES|OCR--Command Detected: {key_command_bottom}")
+        
+        #TODO; instead of returning arms queue, add detected commands
+        # to the brain queue ONLY to have the brain decide what to do.
 
-    # Use OCR to read the bottom command and reward text.
-    # TODO: multiprocessing
-    key_command_bottom, bbox_bottom_text = get_interaction_text(
-        ocr_model, cropped_image_bottom, action_dict)
-    reward_text_topright, _ = get_interaction_text(
-        ocr_model, cropped_image_topright, action_dict)
-    
-    # Place the detected commands into the right arm queue
-    if key_command_bottom:
-        right_arm_queue.put(key_command_bottom)
-        print(f"EYES|OCR--Command Detected: {key_command_bottom}")
-    
-    #TODO; instead of returning arms queue, add detected commands
-    # to the brain queue ONLY to have the brain decide what to do.
-
-    return key_command_bottom, bbox_bottom_text, reward_text_topright
+        # return key_command_bottom, bbox_bottom_text, reward_text_topright
 
 #TODO; we want to send the preproc to get_interaction text. 
 # 

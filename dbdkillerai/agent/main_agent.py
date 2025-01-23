@@ -212,10 +212,10 @@ class Agent:
 
     def stop_all_threads(self):
         """Gracefully stop all threads."""
-        self.arms_queue.put("STOP")
+        self.right_arm_queue.put("STOP")
         self.vertical_legs_queue.put("STOP")
         self.horizontal_legs_queue.put("STOP")
-        self.arms_thread.join()
+        self.right_arm_thread.join()
         self.vertical_legs_thread.join()
         self.horizontal_legs_thread.join()
         self.read_input_thread.join()

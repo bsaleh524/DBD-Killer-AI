@@ -158,7 +158,7 @@ class Agent:
         self.test_image = test_image
         self.ocr_model, self.cap_device = \
             setup_reader_and_camera(test_image=self.test_image,
-                                    device=0,
+                                    device=1,
                                     height=720, #640  #TODO; make reduced and big sizes as presets
                                     width=1280, #480
             )
@@ -261,8 +261,8 @@ class Agent:
             # OCR processing at specific frame intervals
             if frame_count >= self.fps * self.frame_check_multiplier:
                 frame_count = 0
-                
-
+                self.ocr_queue.put(frame)
+                print(f"frame added to ocr queue. new size: {self.ocr_queue.qsize()}")
                 ###### PIPELINE ######
                 # Draw out how the different queues align, like in our AWS class.
                 # Ask GPT if multiprocessing requries queues. It doesnt look like
@@ -296,7 +296,10 @@ class Agent:
                     # pyautogui.keyUp(key_command_bottom)
 
             # YOLO detection
-            yolo_results = self.obj_det.predict(source=frame, conf=0.2, show=False)
+            yolo_results = self.obj_det.predict(source=frame,
+                                                conf=0.2,
+                                                show=False,
+                                                verbose=False)
 
             #TODO: Send detections to Brain
 
@@ -309,18 +312,12 @@ class Agent:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            # # Highlight OCR results if available
-            # if last_key_command and last_bbox:
-            #     top_left = tuple(map(int, last_bbox[0]))
-            #     bottom_right = tuple(map(int, last_bbox[2]))
-            #     cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
-            #     cv2.putText(frame, last_key_command, top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
-
             # Display the updated frame
             cv2.imshow('Camera Feed - Press q to exit', frame)
 
             # Exit loop if 'q' is pressed
             if cv2.waitKey(1) & 0xFF == ord('q'):
+                # self.stop_all_threads()
                 break
 
         # Release resources

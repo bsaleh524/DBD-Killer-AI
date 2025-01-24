@@ -5,7 +5,7 @@ import pyautogui
 
 # Task 1: Arms (Continuously processes commands)
 def right_arm_worker(arms_queue):
-    """Swings the primary attack (Mouse 1)"""
+    """Swings the primary attack (Mouse 1). Use any command that comes in."""
     while True:
         command = arms_queue.get()  # Blocks until a command is available
         if command == "STOP":  # Graceful exit condition

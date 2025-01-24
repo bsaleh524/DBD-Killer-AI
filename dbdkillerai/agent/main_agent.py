@@ -3,11 +3,8 @@ from time import sleep
 from ultralytics import YOLO
 import torch
 import cv2
-import pyautogui
-import time
 import queue
 import threading
-import multiprocessing
 from PIL import Image as pil
 from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
@@ -158,7 +155,7 @@ class Agent:
         self.test_image = test_image
         self.ocr_model, self.cap_device = \
             setup_reader_and_camera(test_image=self.test_image,
-                                    device=1,
+                                    device=0,
                                     height=720, #640  #TODO; make reduced and big sizes as presets
                                     width=1280, #480
             )
@@ -187,11 +184,12 @@ class Agent:
                                                  args=(self.horizontal_legs_queue,),
                                                  daemon=True)
         self.ocr_queue = queue.Queue()
-        self.ocr_multiproc = multiprocessing.Process(target=ocr_pipeline,
+        self.ocr_multiproc = threading.Thread(target=ocr_pipeline,
                                                      args=(self.ocr_queue,
                                                            self.action_dict,
                                                            self.ocr_model,
-                                                           self.right_arm_queue),
+                                                           self.right_arm_queue,
+                                                           False),
                                                      daemon=True)
 
         #TODO: To kick off the limbs(for the future brain), do
@@ -218,10 +216,13 @@ class Agent:
         self.right_arm_queue.put("STOP")
         self.vertical_legs_queue.put("STOP")
         self.horizontal_legs_queue.put("STOP")
+        self.ocr_multiproc.put("STOP")
+
         self.right_arm_thread.join()
         self.vertical_legs_thread.join()
         self.horizontal_legs_thread.join()
         self.read_input_thread.join()
+        self.ocr_multiproc.join()
 
     # implement this into camera
     def start_agent(self):
@@ -255,9 +256,10 @@ class Agent:
 
         while True:
             # Capture the next frame n the screen queue
+            print(f"tryin to get frame from screen_queue of size {self.screen_queue.qsize()}")
             frame = self.screen_queue.get() #TODO: Test that this works
             frame_count += 1
-
+            print(f"frame_count: {frame_count}")
             # OCR processing at specific frame intervals
             if frame_count >= self.fps * self.frame_check_multiplier:
                 frame_count = 0
@@ -300,7 +302,7 @@ class Agent:
                                                 conf=0.2,
                                                 show=False,
                                                 verbose=False)
-
+            print("predicted")
             #TODO: Send detections to Brain
 
             # Draw YOLO predictions on the frame
@@ -311,13 +313,14 @@ class Agent:
                 label = f"{self.obj_det.names[cls]} {conf:.2f}"
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
+            print("displayed")
             # Display the updated frame
             cv2.imshow('Camera Feed - Press q to exit', frame)
 
             # Exit loop if 'q' is pressed
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                # self.stop_all_threads()
+                self.stop_all_threads()
+                self.read_input_thread.join()
                 break
 
         # Release resources

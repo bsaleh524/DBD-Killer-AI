@@ -37,3 +37,45 @@ Hope this clarifies the process for determining the best.pt weights in YOLOv8. I
 
 Best regards,
 Glenn Jocher"
+
+
+# Optimizations
+
+Multiprocessing for OCR can help, but if multiprocessing is needed, you must initialize the OCR model within the `ocr_pipeline` because the model uses CUDA(apparently) and it's trying to initialize ocr again, but since we are already using the YOLO for cuda in the main loop, it dumps this error:
+
+    ```(dbd_ai) (base) mreag@DESKTOP-TOE9IUK:~/repos/DBD-Killer-AI$ /home/mreag/miniconda3/envs/dbd_ai/bin/python /home/mreag/repos/DBD-Killer-AI/dbdkillerai/agent/main_agent.py
+    /home/mreag/repos/DBD-Killer-AI/dbdkillerai/agent/main_agent.py:12: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+    from pkg_resources import parse_version
+    cuda
+    FPS: 30.0
+    Starting all threads and processes...
+    Agent is Ready!
+    frame added to ocr queue. new size: 1
+    Process Process-1:
+    Traceback (most recent call last):
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/multiprocessing/process.py", line 314, in _bootstrap
+        self.run()
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/multiprocessing/process.py", line 108, in run
+        self._target(*self._args, **self._kwargs)
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/site-packages/dbdkillerai/agent/eyes/ocr/text_reader.py", line 33, in ocr_pipeline
+        key_command_bottom, bbox_bottom_text = get_interaction_text(
+                                            ^^^^^^^^^^^^^^^^^^^^^
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/site-packages/dbdkillerai/agent/eyes/ocr/text_reader.py", line 53, in get_interaction_text
+        result = reader.readtext(image)
+                ^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/site-packages/easyocr/easyocr.py", line 456, in readtext
+        horizontal_list, free_list = self.detect(img,
+                                    ^^^^^^^^^^^^^^^^
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/site-packages/easyocr/easyocr.py", line 321, in detect
+        text_box_list = self.get_textbox(self.detector,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/site-packages/easyocr/detection.py", line 95, in get_textbox
+        bboxes_list, polys_list = test_net(canvas_size, mag_ratio, detector,
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/site-packages/easyocr/detection.py", line 42, in test_net
+        x = x.to(device)
+            ^^^^^^^^^^^^
+    File "/home/mreag/miniconda3/envs/dbd_ai/lib/python3.11/site-packages/torch/cuda/__init__.py", line 305, in _lazy_init
+        raise RuntimeError(
+    RuntimeError: Cannot re-initialize CUDA in forked subprocess. To use CUDA with multiprocessing, you must use the 'spawn' start method
+    ```

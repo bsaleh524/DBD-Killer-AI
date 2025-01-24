@@ -21,7 +21,10 @@ def ocr_pipeline(
     action_dict,
     ocr_model,
     right_arm_queue):
+    
     while True:
+        """Multiprocessing function to read the screen capture and detect text."""
+        print(f"starting to read using OCR")
         # Convert to grayscale for better imaging
         frame = ocr_queue.get() # Get the frame from the queue.
         gray = get_grayscale_image(frame)
@@ -31,15 +34,18 @@ def ocr_pipeline(
         cropped_image_topright = crop_top_right(gray)
 
         # Use OCR to read the bottom command and reward text.
-        key_command_bottom, bbox_bottom_text = get_interaction_text(
+        command_text_bottom, bbox_bottom_text = get_interaction_text(
             ocr_model, cropped_image_bottom, action_dict)
         reward_text_topright, _ = get_interaction_text(
             ocr_model, cropped_image_topright, action_dict)
         
+        print(f"OCR processed.\n\n\n\n\n\n\n")
+        if bbox_bottom_text: print(f"Bottom Text BBox: {bbox_bottom_text}")
+
         # Place the detected commands into the right arm queue
-        if key_command_bottom:
-            right_arm_queue.put(key_command_bottom)
-            print(f"EYES|OCR--Command Detected: {key_command_bottom}")
+        if command_text_bottom:
+            right_arm_queue.put(command_text_bottom)
+            print(f"EYES|OCR--Command Detected: {command_text_bottom}")
         
         #TODO; instead of returning arms queue, add detected commands
         # to the brain queue ONLY to have the brain decide what to do.

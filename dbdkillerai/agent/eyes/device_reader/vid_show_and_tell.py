@@ -48,29 +48,3 @@ class VideoShow:
 
     def stop(self):
         self.stopped = True
-
-def threadBoth(source=0):
-    """
-    Dedicated thread for grabbing video frames with VideoGet object.
-    Dedicated thread for showing video frames with VideoShow object.
-    Main thread serves only to pass frames between VideoGet and
-    VideoShow objects/threads.
-    """
-
-    video_getter = VideoGet(source).start()
-    video_shower = VideoShow(video_getter.frame).start()
-    # cps = CountsPerSec().start()
-
-    while True:
-        if video_getter.stopped or video_shower.stopped:
-            video_shower.stop()
-            video_getter.stop()
-            break
-
-        frame = video_getter.frame
-        # frame = putIterationsPerSec(frame, cps.countsPerSec())
-        video_shower.frame = frame
-        # cps.increment()
-
-if __name__ == "__main__":
-    threadBoth()

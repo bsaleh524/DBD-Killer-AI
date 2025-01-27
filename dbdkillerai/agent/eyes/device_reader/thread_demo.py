@@ -41,9 +41,9 @@ def threadVideoGet(source=0):
         cv2.imshow("Video", frame)
 
 
-
 if __name__ == "__main__":
     device = 1
+    # Runs on PC only. So, this logic does a smaller test on Mac.
     if platform.system() != "Darwin":
         threadBoth(source=device)
     else:

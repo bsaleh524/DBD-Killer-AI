@@ -11,8 +11,7 @@ if parse_version(pil.__version__)>=parse_version('10.0.0'):
     pil.ANTIALIAS=pil.LANCZOS
 
 from dbdkillerai.agent.eyes.ocr.text_reader import (
-    setup_reader_and_camera, get_state_commands,
-    get_interaction_text, 
+    setup_camera, setup_reader, get_state_commands,
     )
 from dbdkillerai.agent.arms.right_arm import right_arm_worker
 from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker
@@ -153,13 +152,13 @@ class Agent:
         # Setup initialization of models.
         self.obj_det = YOLO(yolo_model_path)
         self.test_image = test_image
-        self.ocr_model, self.cap_device = \
-            setup_reader_and_camera(test_image=self.test_image,
+        self.ocr_model = setup_reader()
+        self.cap_device = setup_camera(test_image=self.test_image,
                                     device=0,
                                     height=720, #640  #TODO; make reduced and big sizes as presets
                                     width=1280, #480
             )
-        
+
         # Setup SURVEY values since SURVEY is first state.
         self.state_name = "SURVEY"
         self.action_dict = get_state_commands(

@@ -170,7 +170,8 @@ def read_commands(ocr_model, capture_device, action_dict,
 
 # To test, place the bottom code where you desire for a live feed.
 if __name__ == "__main__":
-    ocr_model, cap_device = setup_reader_and_camera(device=0, height=480, width=640)
+    cap_device = setup_camera(test_image=False, device=0, height=480, width=640)
+    ocr_model = setup_reader()
     action_dict = get_state_commands(state="SURVEY",
                                      path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml")
     read_commands(ocr_model=ocr_model, capture_device=cap_device, action_dict=action_dict)

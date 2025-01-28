@@ -16,7 +16,7 @@ from dbdkillerai.agent.eyes.ocr.text_reader import (
 from dbdkillerai.agent.arms.right_arm import right_arm_worker
 from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker
 from dbdkillerai.agent.eyes.ocr.text_reader import ocr_pipeline
-from dbdkillerai.agent.eyes.eyes import read_screen_capture
+from dbdkillerai.agent.eyes.eyes import VideoGet
 
 if torch.cuda.is_available():
     Device = torch.device("cuda")
@@ -148,16 +148,19 @@ class Agent:
     
     This is the agent itself. YOLO model and the OCR model
     should be initialized here and then '''
-    def __init__(self, yolo_model_path, test_image=False) -> None:
+    def __init__(self, yolo_model_path, test_image=False, device_index=0, quality_preset=0) -> None:
+        
         # Setup initialization of models.
         self.obj_det = YOLO(yolo_model_path)
         self.test_image = test_image
+        self.device_index = device_index
+        self.quality_preset = quality_preset
         self.ocr_model = setup_reader()
-        self.cap_device = setup_camera(test_image=self.test_image,
-                                    device=0,
-                                    height=720, #640  #TODO; make reduced and big sizes as presets
-                                    width=1280, #480
-            )
+        # self.cap_device = setup_camera(test_image=self.test_image,
+        #                             device=device,
+        #                             height=720, #640  #TODO; make reduced and big sizes as presets
+        #                             width=1280, #480
+        #     )
 
         # Setup SURVEY values since SURVEY is first state.
         self.state_name = "SURVEY"
@@ -191,15 +194,6 @@ class Agent:
                                                            False),
                                                      daemon=True)
 
-        #TODO: To kick off the limbs(for the future brain), do
-        ##arms:
-            # self.arms_queue.put(command)  # `command` is anything
-        # Legs:
-        # if vertical_command:
-        #     self.vertical_legs_queue.put(vertical_command) # "w" or "s"
-        # if horizontal_command:
-        #     self.horizontal_legs_queue.put(horizontal_command) # "a" or "d"
-
 
     def switch_to_survey(self):
         self.state.switch_to_survey(self)
@@ -220,11 +214,11 @@ class Agent:
         self.right_arm_thread.join()
         self.vertical_legs_thread.join()
         self.horizontal_legs_thread.join()
-        self.read_input_thread.join()
+        # self.read_input_thread.join()
         self.ocr_multiproc.join()
 
     # implement this into camera
-    def start_agent(self):
+    def run_agent(self):
         last_key_command = None
         last_bbox = None
         frame_count = 0
@@ -233,17 +227,21 @@ class Agent:
         # the agent itself starts operating
 
         self.screen_queue = queue.Queue()
-        self.read_input_thread = threading.Thread(target=read_screen_capture,
-                                                 args=(self.cap_device, self.screen_queue),
-                                                 daemon=True)
+        # self.read_input_thread = threading.Thread(target=read_screen_capture,
+        #                                          args=(self.cap_device, self.screen_queue),
+        #                                          daemon=True)
         
+        video_getter = VideoGet(device=self.device_index,
+                                test_image=self.test_image,
+                                vid_preset=self.quality_preset)
         
         # Start all threads
         print("Starting all threads and processes...")
         self.right_arm_thread.start()  # Start Right Arm/Main Attack/M1
         self.vertical_legs_thread.start()  # Start Vertical Legs/ "w" and "s"
         self.horizontal_legs_thread.start()  # Start Horizontal Legs/ "a" and "d"
-        self.read_input_thread.start()  # Start Screen Capture for YOLO and OCR Queueing
+        # self.read_input_thread.start()  # Start Screen Capture for YOLO and OCR Queueing
+        video_getter.start()
 
         # Start off multiprocessing
         self.ocr_multiproc.start()  # Start OCR Processing for text detection
@@ -255,10 +253,10 @@ class Agent:
 
         while True:
             # Capture the next frame n the screen queue
-            print(f"tryin to get frame from screen_queue of size {self.screen_queue.qsize()}")
-            frame = self.screen_queue.get() #TODO: Test that this works
+            # print(f"tryin to get frame from screen_queue of size {self.screen_queue.qsize()}")
+            frame = video_getter.queue.get() 
             frame_count += 1
-            print(f"frame_count: {frame_count}")
+            # print(f"frame_count: {frame_count}")
             # OCR processing at specific frame intervals
             if frame_count >= self.fps * self.frame_check_multiplier:
                 frame_count = 0
@@ -319,17 +317,20 @@ class Agent:
             # Exit loop if 'q' is pressed
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 self.stop_all_threads()
-                self.read_input_thread.join()
+                video_getter.stop()
+                # self.read_input_thread.join()
                 break
 
         # Release resources
-        self.cap_device.release()
         cv2.destroyAllWindows()
 
 def main() -> None:
     test_image = False
-    killer = Agent(yolo_model_path="dbdkillerai/models/dataset/9/best.pt", test_image=test_image)
-    killer.start_agent()
+    killer = Agent(yolo_model_path="dbdkillerai/models/dataset/9/best.pt",
+                   test_image=test_image,
+                   device_index=0,
+                   quality_preset=0)
+    killer.run_agent()
     
 if __name__ == "__main__":
     main()

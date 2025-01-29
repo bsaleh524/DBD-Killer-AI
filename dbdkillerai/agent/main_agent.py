@@ -336,7 +336,7 @@ def main() -> None:
     killer = Agent(yolo_model_path="dbdkillerai/models/dataset/9/best.pt",
                    test_image=test_image,
                    device_index=0,
-                   quality_preset=0)
+                   quality_preset=1)
     killer.run_agent()
     
 if __name__ == "__main__":

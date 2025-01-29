@@ -3,16 +3,7 @@ from queue import Queue
 from dbdkillerai.agent.eyes.ocr.text_reader import setup_camera
 import cv2
 
-def read_screen_capture(capture_device, vision_queue):
-    """Read the input device's screen. Output frame and return value"""
-    while True:
-        ret, frame = capture_device.read()
-        vision_queue.put(frame)
-        if not ret:
-            raise("Failed to grab frame. Check devices!")
-        # return frame
-
-class VideoGet:
+class VideoGetter:
     """
     Class that continuously gets frames from a VideoCapture object
     with a dedicated thread.
@@ -59,7 +50,3 @@ class VideoGet:
     
     def get_fps(self):
         return self.stream.get(cv2.CAP_PROP_FPS)
-
-
-if __name__ == "__main__":
-    pass

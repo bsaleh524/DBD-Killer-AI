@@ -16,7 +16,7 @@ from dbdkillerai.agent.eyes.ocr.text_reader import (
 from dbdkillerai.agent.arms.right_arm import right_arm_worker
 from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker
 from dbdkillerai.agent.eyes.ocr.text_reader import ocr_pipeline
-from dbdkillerai.agent.eyes.eyes import VideoGet
+from dbdkillerai.agent.eyes.device_reader.videogetter import VideoGetter
 
 if torch.cuda.is_available():
     Device = torch.device("cuda")
@@ -148,13 +148,20 @@ class Agent:
     
     This is the agent itself. YOLO model and the OCR model
     should be initialized here and then '''
-    def __init__(self, yolo_model_path, test_image=False, device_index=0, quality_preset=0) -> None:
+    def __init__(self,
+                 yolo_model_path,
+                 test_image=False,
+                 device_index=0,
+                 quality_preset=0,
+                 frame_check_multiplier=2) -> None:
         
         # Setup initialization of models.
         self.obj_det = YOLO(yolo_model_path)
         self.test_image = test_image
         self.device_index = device_index
         self.quality_preset = quality_preset
+        self.frame_check_multiplier = frame_check_multiplier
+
         self.ocr_model = setup_reader()
         # self.cap_device = setup_camera(test_image=self.test_image,
         #                             device=device,
@@ -169,8 +176,6 @@ class Agent:
             path_to_yaml="dbdkillerai/agent/eyes/ocr/text_to_action.yaml"
         )
         self.state = SurveyState()
-        self.frame_check_multiplier = 2
-        self.fps = self.cap_device.get(cv2.CAP_PROP_FPS) #THREAD
 
         # Setup our queues and threads for limbs
         self.right_arm_queue = queue.Queue()
@@ -231,10 +236,12 @@ class Agent:
         #                                          args=(self.cap_device, self.screen_queue),
         #                                          daemon=True)
         
-        video_getter = VideoGet(device=self.device_index,
+        video_getter = VideoGetter(device=self.device_index,
                                 test_image=self.test_image,
-                                vid_preset=self.quality_preset)
-        
+                                vid_preset=self.quality_preset
+        )
+        self.fps = video_getter.get_fps()
+
         # Start all threads
         print("Starting all threads and processes...")
         self.right_arm_thread.start()  # Start Right Arm/Main Attack/M1

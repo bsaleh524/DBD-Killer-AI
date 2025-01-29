@@ -25,13 +25,10 @@ def ocr_pipeline(
     
     while True:
         """Multiprocessing function to read the screen capture and detect text."""
-        #TODO: refer to todo.md for the next steps.
 
         # Convert to grayscale for better imaging
         frame = ocr_queue.get() # Get the frame from the queue.
-        if frame == "STOP":  # Graceful exit condition
-            print("ocr_pipeline stopping...")
-            break
+        #TODO: needs graceful shutdown.
         gray = get_grayscale_image(frame)
 
         # Crop the images
@@ -49,14 +46,9 @@ def ocr_pipeline(
         if command_text_bottom and debug:
             right_arm_queue.put(command_text_bottom)
             print(f"EYES|OCR\tCommand Detected: {command_text_bottom}")
-        
+        print("did OCR")
         #TODO; instead of returning arms queue, add detected commands
         # to the brain queue ONLY to have the brain decide what to do.
-
-        # return key_command_bottom, bbox_bottom_text, reward_text_topright
-
-#TODO; we want to send the preproc to get_interaction text. 
-# 
 
 def get_interaction_text(reader: easyocr.Reader, image, command_dict):
     """Read the text from the given screencapture frame/image and return key."""
@@ -86,6 +78,8 @@ def setup_camera(test_image=False, device=0, height=480, width=640):
         cap = cv2.VideoCapture(device) 
         fps = cap.get(cv2.CAP_PROP_FPS)
         print(f"FPS: {fps}")  #TODO: Logging
+        print(f"width: {width}, type: {type(width)}")
+        print(f"height: {height}, type: {type(height)}")
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     else:

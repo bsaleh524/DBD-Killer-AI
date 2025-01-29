@@ -16,10 +16,10 @@ class VideoGetter:
         
         # Get presets for video quality. Small or Large
         if vid_preset == 0:
-            height=640,
+            height=640
             width=480
         elif vid_preset == 1:
-            height=720,
+            height=720
             width=1280
         
         # Setup the camera

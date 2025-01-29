@@ -189,7 +189,7 @@ class Agent:
         self.horizontal_legs_queue = queue.Queue()
         self.horizontal_legs_thread = threading.Thread(target=horizontal_legs_worker,
                                                  args=(self.horizontal_legs_queue,),
-                                                 daemon=True)
+                                                                           daemon=True)
         self.ocr_queue = queue.Queue()
         self.ocr_multiproc = threading.Thread(target=ocr_pipeline,
                                                      args=(self.ocr_queue,
@@ -214,7 +214,7 @@ class Agent:
         self.right_arm_queue.put("STOP")
         self.vertical_legs_queue.put("STOP")
         self.horizontal_legs_queue.put("STOP")
-        self.ocr_multiproc.put("STOP")
+        # self.ocr_multiproc.put("STOP")
 
         self.right_arm_thread.join()
         self.vertical_legs_thread.join()

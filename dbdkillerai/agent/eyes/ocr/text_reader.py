@@ -6,6 +6,8 @@ import yaml
 import pyautogui
 import time
 from pathlib import Path
+from threading import Thread
+from queue import Queue
 from PIL import Image as pil
 
 from dbdkillerai.agent.eyes.ocr.crop_images import crop_bottom_center, crop_top_right
@@ -16,19 +18,54 @@ from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
     pil.ANTIALIAS=pil.LANCZOS
 
+
+class OCRPipelineWorker:
+    """
+    Class that functions as a thread to execute OCR
+    from a frame pipeline. Also allows
+    graceful stopping.
+    """
+
+    def __init__(self,):
+        self.stopped = False
+        self.ocr_model = setup_reader()
+
+    def start(self, ocr_queue: Queue,
+              action_dict: dict,
+              arm_queue: Queue
+        ):
+        "Start the OCR thread"
+        self.thread = Thread(target=self.get, args=(ocr_queue, action_dict, arm_queue)).start()
+
+    #TODO: Remove arm queue later
+    def get(self, ocr_queue, action_dict, arm_queue):
+        "Complete OCR on Bottom and Topright, given by brain."
+        while not self.stopped:
+            current_frame = ocr_queue.get()
+            ocr_pipeline(frame=current_frame,
+                         action_dict=action_dict,
+                         ocr_model=self.ocr_model,
+                         right_arm_queue=arm_queue,
+                         debug=True)
+        print("OCR Worker stopped.")
+
+    def stop(self):
+        self.stopped = True
+        if self.thread is not None:
+            self.thread.join()  # Ensure thread joins before exiting
+
 def ocr_pipeline(
-    ocr_queue,
+    frame,
     action_dict,
     ocr_model,
     right_arm_queue,
     debug=False):
     
     while True:
-        """Multiprocessing function to read the screen capture and detect text."""
+        """Multiprocessing function to read the
+        screen capture and detect text."""
 
         # Convert to grayscale for better imaging
-        frame = ocr_queue.get() # Get the frame from the queue.
-        #TODO: needs graceful shutdown.
         gray = get_grayscale_image(frame)
 
         # Crop the images
@@ -46,7 +83,7 @@ def ocr_pipeline(
         if command_text_bottom and debug:
             right_arm_queue.put(command_text_bottom)
             print(f"EYES|OCR\tCommand Detected: {command_text_bottom}")
-        print("did OCR")
+        print("OCR Complete")
         #TODO; instead of returning arms queue, add detected commands
         # to the brain queue ONLY to have the brain decide what to do.
 

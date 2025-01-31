@@ -1,7 +1,36 @@
 import threading
-import queue
+from threading import Thread
+from queue import Queue
 import time
 import pyautogui
+
+
+class RightArmWorker:
+    """
+    Class that functions as a thread to pull in
+    commands from the right arm queue and execute
+    them. Also allows graceful stopping."""
+
+    def __init__(self,):
+        self.stopped = False
+
+    def start(self, queue: Queue):
+        "Start the thread"
+        self.thread = Thread(target=self.get, args=(queue,)).start()
+
+    def get(self, queue, click_duration: float = 0.8):
+        "Do actions from queue, given by brain."
+        while not self.stopped:
+            current_command = queue.get()
+            if current_command:
+                pyautogui.leftClick(duration=click_duration)
+        print("Right Arm Worker stopped.")
+
+    def stop(self):
+        self.stopped = True
+        if self.thread is not None:
+            self.thread.join()  # Ensure thread joins before exiting
+
 
 # Task 1: Arms (Continuously processes commands)
 def right_arm_worker(arms_queue):

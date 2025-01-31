@@ -13,10 +13,12 @@ if parse_version(pil.__version__)>=parse_version('10.0.0'):
 from dbdkillerai.agent.eyes.ocr.text_reader import (
     setup_camera, setup_reader, get_state_commands,
     )
-from dbdkillerai.agent.arms.right_arm import right_arm_worker
-from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker
-from dbdkillerai.agent.eyes.ocr.text_reader import ocr_pipeline
+from dbdkillerai.agent.arms.right_arm import right_arm_worker, RightArmWorker
+from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker, VerticalLegsWorker, HorizontalLegsWorker
+from dbdkillerai.agent.eyes.ocr.text_reader import ocr_pipeline, OCRPipelineWorker
 from dbdkillerai.agent.eyes.device_reader.videogetter import VideoGetter
+import faulthandler
+faulthandler.enable()
 
 if torch.cuda.is_available():
     Device = torch.device("cuda")
@@ -162,12 +164,7 @@ class Agent:
         self.quality_preset = quality_preset
         self.frame_check_multiplier = frame_check_multiplier
 
-        self.ocr_model = setup_reader()
-        # self.cap_device = setup_camera(test_image=self.test_image,
-        #                             device=device,
-        #                             height=720, #640  #TODO; make reduced and big sizes as presets
-        #                             width=1280, #480
-        #     )
+        
 
         # Setup SURVEY values since SURVEY is first state.
         self.state_name = "SURVEY"
@@ -179,25 +176,16 @@ class Agent:
 
         # Setup our queues and threads for limbs
         self.right_arm_queue = queue.Queue()
-        self.right_arm_thread = threading.Thread(target=right_arm_worker,
-                                                 args=(self.right_arm_queue,),
-                                                 daemon=True)
+        self.right_arm_thread = RightArmWorker()
+        
         self.vertical_legs_queue = queue.Queue()
-        self.vertical_legs_thread = threading.Thread(target=vertical_legs_worker,
-                                                 args=(self.vertical_legs_queue,),
-                                                 daemon=True)
+        self.vertical_legs_thread = VerticalLegsWorker()
+    
         self.horizontal_legs_queue = queue.Queue()
-        self.horizontal_legs_thread = threading.Thread(target=horizontal_legs_worker,
-                                                 args=(self.horizontal_legs_queue,),
-                                                                           daemon=True)
+        self.horizontal_legs_thread = HorizontalLegsWorker()
+        
         self.ocr_queue = queue.Queue()
-        self.ocr_multiproc = threading.Thread(target=ocr_pipeline,
-                                                     args=(self.ocr_queue,
-                                                           self.action_dict,
-                                                           self.ocr_model,
-                                                           self.right_arm_queue,
-                                                           False),
-                                                     daemon=True)
+        self.ocr_multiproc_thread = OCRPipelineWorker()
 
 
     def switch_to_survey(self):
@@ -211,16 +199,13 @@ class Agent:
 
     def stop_all_threads(self):
         """Gracefully stop all threads."""
-        self.right_arm_queue.put("STOP")
-        self.vertical_legs_queue.put("STOP")
-        self.horizontal_legs_queue.put("STOP")
-        # self.ocr_multiproc.put("STOP")
-
-        self.right_arm_thread.join()
-        self.vertical_legs_thread.join()
-        self.horizontal_legs_thread.join()
-        # self.read_input_thread.join()
-        self.ocr_multiproc.join()
+        print("Stopping all threads...")
+        self.right_arm_thread.stop()
+        self.vertical_legs_thread.stop()
+        self.horizontal_legs_thread.stop()
+        self.ocr_multiproc_thread.stop()
+        print("Stopped all threads!")
+        
 
     # implement this into camera
     def run_agent(self):
@@ -244,14 +229,16 @@ class Agent:
 
         # Start all threads
         print("Starting all threads and processes...")
-        self.right_arm_thread.start()  # Start Right Arm/Main Attack/M1
-        self.vertical_legs_thread.start()  # Start Vertical Legs/ "w" and "s"
-        self.horizontal_legs_thread.start()  # Start Horizontal Legs/ "a" and "d"
+        self.right_arm_thread.start(self.right_arm_queue)  # Start Right Arm/Main Attack/M1
+        self.vertical_legs_thread.start(self.vertical_legs_queue)  # Start Vertical Legs/ "w" and "s"
+        self.horizontal_legs_thread.start(self.horizontal_legs_queue)  # Start Horizontal Legs/ "a" and "d"
         # self.read_input_thread.start()  # Start Screen Capture for YOLO and OCR Queueing
         video_getter.start()
 
         # Start off multiprocessing
-        self.ocr_multiproc.start()  # Start OCR Processing for text detection
+        self.ocr_multiproc_thread.start(self.ocr_queue,
+                                        self.action_dict,
+                                        self.right_arm_queue)  # Start OCR Processing for text detection
         
         sleep(3)
         print("Agent is Ready!")
@@ -269,44 +256,12 @@ class Agent:
                 frame_count = 0
                 self.ocr_queue.put(frame)
                 print(f"frame added to ocr queue. new size: {self.ocr_queue.qsize()}")
-                ###### PIPELINE ######
-                # Draw out how the different queues align, like in our AWS class.
-                # Ask GPT if multiprocessing requries queues. It doesnt look like
-                # it needs it. Refer to black notebook. Make all processing here
-                # a single, multiprocessing pipeline that takes in a copy of
-                # the frame and places the results on a brain queue, if needed.
-
-                # Use OCR for text. (TODO: multiprocessing)
-                # key_command_bottom, bbox_bottom_text, _ = ocr_pipeline(
-                #     frame=frame,
-                #     action_dict=self.action_dict,
-                #     ocr_model=self.ocr_model)
-
-
-                #TODO: Send reward text to brain
-                #TODO: send detected action text on bottom to brain
-
-                # send command to "neck" module call. "neck" must be imported
-                # the get interaction text should be strictly an "arms" piece, 
-                # not an "eyes" piece. 
-                ###### PIPELINE ######
-
-                # if key_command_bottom:
-                #     last_key_command = key_command_bottom
-                #     last_bbox = bbox_bottom_text
-
-                #     # Simulate the keyboard command
-                #     print(f"Detected Command: {key_command_bottom}")
-                    # pyautogui.keyDown(key_command_bottom)
-                    # time.sleep(2)
-                    # pyautogui.keyUp(key_command_bottom)
 
             # YOLO detection
             yolo_results = self.obj_det.predict(source=frame,
                                                 conf=0.2,
                                                 show=False,
                                                 verbose=False)
-            print("predicted")
             #TODO: Send detections to Brain
 
             # Draw YOLO predictions on the frame
@@ -317,14 +272,14 @@ class Agent:
                 label = f"{self.obj_det.names[cls]} {conf:.2f}"
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            print("displayed")
             # Display the updated frame
             cv2.imshow('Camera Feed - Press q to exit', frame)
 
             # Exit loop if 'q' is pressed
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                self.stop_all_threads()
                 video_getter.stop()
+                self.stop_all_threads()
+                v
                 # self.read_input_thread.join()
                 break
 

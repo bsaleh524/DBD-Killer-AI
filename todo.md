@@ -15,7 +15,9 @@
     - Create a minimap for the engineer to see. It should be topdown.
     - When the agent sees a minimap, maybe it should be saved on a location.
     - FOV triangle on another minimap display.
-    - 
+9. Make the following threads/multiprocessors:
+  - YOLO: Multiprocessor after receiving frame.
+  - OCR: Multiprocessor after receiving frame.
 
 
 - notebook is for exploring data, not training it.

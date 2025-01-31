@@ -33,7 +33,7 @@ class VideoGetter:
         self.queue = Queue()
 
     def start(self):    
-        Thread(target=self.get, args=()).start()
+        self.thread = Thread(target=self.get, args=()).start()
         return self
 
     def get(self):
@@ -43,10 +43,12 @@ class VideoGetter:
             else:
                 (self.grabbed, self.frame) = self.stream.read()
                 self.queue.put(self.frame)
+        print(f"Video getter stopped. finish yolo?")
 
     def stop(self):
         self.stopped = True
         self.stream.release()
+        self.thread.join()
     
     def get_fps(self):
         return self.stream.get(cv2.CAP_PROP_FPS)

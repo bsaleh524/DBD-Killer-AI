@@ -26,27 +26,30 @@ class OCRPipelineWorker:
     graceful stopping.
     """
 
-    def __init__(self,):
+    def __init__(self,
+                 ocr_queue: Queue,
+                 action_dict: dict,
+                 arm_queue: Queue
+                ):
         self.stopped = False
         self.ocr_model = setup_reader()
+        self.thread = Thread(target=self.get, args=(ocr_queue, action_dict, arm_queue))
 
-    def start(self, ocr_queue: Queue,
-              action_dict: dict,
-              arm_queue: Queue
-        ):
+    def start(self,):
         "Start the OCR thread"
-        self.thread = Thread(target=self.get, args=(ocr_queue, action_dict, arm_queue)).start()
+        self.thread.start()
 
     #TODO: Remove arm queue later
     def get(self, ocr_queue, action_dict, arm_queue):
         "Complete OCR on Bottom and Topright, given by brain."
         while not self.stopped:
             current_frame = ocr_queue.get()
+            print(f"OCR Worker: {current_frame}")
             ocr_pipeline(frame=current_frame,
-                         action_dict=action_dict,
-                         ocr_model=self.ocr_model,
-                         right_arm_queue=arm_queue,
-                         debug=True)
+                        action_dict=action_dict,
+                        ocr_model=self.ocr_model,
+                        right_arm_queue=arm_queue,
+                        debug=True)
         print("OCR Worker stopped.")
 
     def stop(self):

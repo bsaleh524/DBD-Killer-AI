@@ -164,7 +164,6 @@ class Agent:
         self.quality_preset = quality_preset
         self.frame_check_multiplier = frame_check_multiplier
 
-        
 
         # Setup SURVEY values since SURVEY is first state.
         self.state_name = "SURVEY"
@@ -185,8 +184,10 @@ class Agent:
         self.horizontal_legs_thread = HorizontalLegsWorker()
         
         self.ocr_queue = queue.Queue()
-        self.ocr_multiproc_thread = OCRPipelineWorker()
-
+        self.ocr_multiproc_thread = OCRPipelineWorker(
+            self.ocr_queue,
+            self.action_dict,
+            self.right_arm_queue)
 
     def switch_to_survey(self):
         self.state.switch_to_survey(self)
@@ -209,18 +210,10 @@ class Agent:
 
     # implement this into camera
     def run_agent(self):
-        last_key_command = None
-        last_bbox = None
         frame_count = 0
 
         # Setup thread for reading input and only start it when
         # the agent itself starts operating
-
-        self.screen_queue = queue.Queue()
-        # self.read_input_thread = threading.Thread(target=read_screen_capture,
-        #                                          args=(self.cap_device, self.screen_queue),
-        #                                          daemon=True)
-        
         video_getter = VideoGetter(device=self.device_index,
                                 test_image=self.test_image,
                                 vid_preset=self.quality_preset
@@ -236,9 +229,7 @@ class Agent:
         video_getter.start()
 
         # Start off multiprocessing
-        self.ocr_multiproc_thread.start(self.ocr_queue,
-                                        self.action_dict,
-                                        self.right_arm_queue)  # Start OCR Processing for text detection
+        self.ocr_multiproc_thread.start()  # Start OCR Processing for text detection
         
         sleep(3)
         print("Agent is Ready!")

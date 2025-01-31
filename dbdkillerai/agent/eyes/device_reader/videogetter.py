@@ -31,9 +31,10 @@ class VideoGetter:
         (self.grabbed, self.frame) = self.stream.read()
         self.stopped = False
         self.queue = Queue()
+        self.thread = Thread(target=self.get, args=())
 
     def start(self):    
-        self.thread = Thread(target=self.get, args=()).start()
+        self.thread.start()
         return self
 
     def get(self):
@@ -44,6 +45,7 @@ class VideoGetter:
                 (self.grabbed, self.frame) = self.stream.read()
                 self.queue.put(self.frame)
         print(f"Video getter stopped. finish yolo?")
+        #TODO: THIS WORKER IS NOT SHUTTING DOWN GRACEFULLY! FIX THIS!!
 
     def stop(self):
         self.stopped = True

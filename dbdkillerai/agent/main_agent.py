@@ -279,7 +279,6 @@ class Agent:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 video_getter.stop()
                 self.stop_all_threads()
-                v
                 # self.read_input_thread.join()
                 break
 

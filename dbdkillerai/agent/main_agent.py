@@ -221,7 +221,7 @@ class Agent:
         if self.ocr_multiproc_thread.thread is not None:
             self.ocr_multiproc_thread.thread.join()
         print("Stopped all threads!")
-        
+        #TODO: OCR_PIPELINE IS STILL NOT STOPPED. WHY? ALL OTHERS JOINED
 
     # implement this into camera
     def run_agent(self):

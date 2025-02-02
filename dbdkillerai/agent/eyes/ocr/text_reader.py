@@ -47,6 +47,7 @@ class OCRPipelineWorker:
     def get(self, ocr_queue, action_dict, arm_queue, debug):
         "Complete OCR on Bottom and Topright, given by brain."
         while not self.stopped:
+            print("OCR Worker running...")
             current_frame = ocr_queue.get()
             ocr_pipeline(frame=current_frame,
                         action_dict=action_dict,
@@ -57,6 +58,7 @@ class OCRPipelineWorker:
 
     def stop(self):
         self.stopped = True
+        print("set self.stopped to True in ocr worker")
         # if self.thread is not None:
         #     self.thread.join()  # Ensure thread joins before exiting
 

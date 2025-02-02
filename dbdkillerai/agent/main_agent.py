@@ -282,15 +282,22 @@ class Agent:
 
             # Exit loop if 'q' is pressed
             if cv2.waitKey(1) & 0xFF == ord('q'):
+                print("Quit Detected. Starting Shutdown...")
                 video_getter.stop()
+                print("Stopped VIdeo getter. Joining...")
                 video_getter.thread.join()
+                print("Video getter joined! Continuing stop threads.")
                 self.stop_all_threads()
+                print("stop all threads done. Now destroying windows")
                 cv2.destroyAllWindows()
+                print("Windows apparently destroyed.")
                 # self.read_input_thread.join()
                 break
 
         # Release resources
+        print("destroying windows once again?")
         cv2.destroyAllWindows()
+        print("Should be fully done now")
 
 def main() -> None:
     test_image = False

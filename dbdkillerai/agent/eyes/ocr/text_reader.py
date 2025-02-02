@@ -34,7 +34,8 @@ class OCRPipelineWorker:
                 ):
         self.stopped = False
         self.ocr_model = setup_reader()
-        self.thread = Thread(target=self.get, args=(ocr_queue,
+        self.ocr_queue = ocr_queue
+        self.thread = Thread(target=self.get, args=(self.ocr_queue,
                                                     action_dict,
                                                     arm_queue,
                                                     debug))
@@ -49,6 +50,9 @@ class OCRPipelineWorker:
         while not self.stopped:
             print("OCR Worker running...")
             current_frame = ocr_queue.get()
+            
+            if current_frame is None:  # Poison pill detected
+                break
             ocr_pipeline(frame=current_frame,
                         action_dict=action_dict,
                         ocr_model=self.ocr_model,
@@ -58,7 +62,9 @@ class OCRPipelineWorker:
 
     def stop(self):
         self.stopped = True
-        print("set self.stopped to True in ocr worker")
+        print("set self.stopped to True in ocr worker.")
+        self.ocr_queue.put(None)
+        print("Added None Poison Pill.")
         # if self.thread is not None:
         #     self.thread.join()  # Ensure thread joins before exiting
 
@@ -86,9 +92,10 @@ def ocr_pipeline(
         ocr_model, cropped_image_topright, action_dict)
 
     # Place the detected commands into the right arm queue
-    if command_text_bottom and debug:
+    if command_text_bottom:
         right_arm_queue.put(command_text_bottom)
-        print(f"EYES|OCR\tCommand Detected: {command_text_bottom}")
+        if debug:
+            print(f"EYES|OCR\tCommand Detected: {command_text_bottom}")
 
     print("OCR Complete")
     #TODO; instead of returning arms queue, add detected commands

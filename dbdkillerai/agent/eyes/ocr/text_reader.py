@@ -128,9 +128,7 @@ def setup_camera(test_image=False, device=0, height=480, width=640):
         # Initialize webcam
         cap = cv2.VideoCapture(device) 
         fps = cap.get(cv2.CAP_PROP_FPS)
-        print(f"FPS: {fps}")  #TODO: Logging
-        print(f"width: {width}, type: {type(width)}")
-        print(f"height: {height}, type: {type(height)}")
+        print(f"Device {device} | Resolution: ({width}x{height}) | FPS: {fps}") #TODO: Logging
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     else:

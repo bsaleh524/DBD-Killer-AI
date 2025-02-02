@@ -34,8 +34,8 @@ class VerticalLegsWorker:
 
     def stop(self):
         self.stopped = True
-        if self.thread is not None:
-            self.thread.join()  # Ensure thread joins before exiting
+        # if self.thread is not None:
+        #     self.thread.join()  # Ensure thread joins before exiting
 
 class HorizontalLegsWorker:
     """
@@ -67,8 +67,8 @@ class HorizontalLegsWorker:
 
     def stop(self):
         self.stopped = True
-        if self.thread is not None:
-            self.thread.join()  # Ensure thread joins before exiting
+        # if self.thread is not None:
+        #     self.thread.join()  # Ensure thread joins before exiting
 
 def vertical_legs_worker(vertical_legs_queue):
     """Processes vertical movement commands (W and S keys)."""

@@ -185,9 +185,10 @@ class Agent:
         
         self.ocr_queue = queue.Queue()
         self.ocr_multiproc_thread = OCRPipelineWorker(
-            self.ocr_queue,
-            self.action_dict,
-            self.right_arm_queue)
+            ocr_queue=self.ocr_queue,
+            action_dict=self.action_dict,
+            arm_queue=self.right_arm_queue,
+            debug=True)
 
     def switch_to_survey(self):
         self.state.switch_to_survey(self)
@@ -205,6 +206,20 @@ class Agent:
         self.vertical_legs_thread.stop()
         self.horizontal_legs_thread.stop()
         self.ocr_multiproc_thread.stop()
+        print("Stopping all threads...")
+        
+        print("Joining right_arm_thread...")
+        if self.right_arm_thread.thread is not None:
+            self.right_arm_thread.thread.join()
+        print("Joining vertical_legs_thread...")
+        if self.vertical_legs_thread.thread is not None:
+            self.vertical_legs_thread.thread.join()
+        print("Joining horizontal_legs_thread...")
+        if self.horizontal_legs_thread.thread is not None:
+            self.horizontal_legs_thread.thread.join()
+        print("Joining ocr_multiproc_thread...")
+        if self.ocr_multiproc_thread.thread is not None:
+            self.ocr_multiproc_thread.thread.join()
         print("Stopped all threads!")
         
 
@@ -235,13 +250,12 @@ class Agent:
         print("Agent is Ready!")
 
         ## Possible race condition. queues empty before while loop
-
         while True:
             # Capture the next frame n the screen queue
             # print(f"tryin to get frame from screen_queue of size {self.screen_queue.qsize()}")
             frame = video_getter.queue.get() 
             frame_count += 1
-            # print(f"frame_count: {frame_count}")
+
             # OCR processing at specific frame intervals
             if frame_count >= self.fps * self.frame_check_multiplier:
                 frame_count = 0
@@ -269,7 +283,9 @@ class Agent:
             # Exit loop if 'q' is pressed
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 video_getter.stop()
+                video_getter.thread.join()
                 self.stop_all_threads()
+                cv2.destroyAllWindows()
                 # self.read_input_thread.join()
                 break
 

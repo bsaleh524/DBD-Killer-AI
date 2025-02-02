@@ -29,33 +29,36 @@ class OCRPipelineWorker:
     def __init__(self,
                  ocr_queue: Queue,
                  action_dict: dict,
-                 arm_queue: Queue
+                 arm_queue: Queue,
+                 debug: bool = False
                 ):
         self.stopped = False
         self.ocr_model = setup_reader()
-        self.thread = Thread(target=self.get, args=(ocr_queue, action_dict, arm_queue))
+        self.thread = Thread(target=self.get, args=(ocr_queue,
+                                                    action_dict,
+                                                    arm_queue,
+                                                    debug))
 
     def start(self,):
         "Start the OCR thread"
         self.thread.start()
 
     #TODO: Remove arm queue later
-    def get(self, ocr_queue, action_dict, arm_queue):
+    def get(self, ocr_queue, action_dict, arm_queue, debug):
         "Complete OCR on Bottom and Topright, given by brain."
         while not self.stopped:
             current_frame = ocr_queue.get()
-            print(f"OCR Worker: {current_frame}")
             ocr_pipeline(frame=current_frame,
                         action_dict=action_dict,
                         ocr_model=self.ocr_model,
                         right_arm_queue=arm_queue,
-                        debug=True)
+                        debug=debug)
         print("OCR Worker stopped.")
 
     def stop(self):
         self.stopped = True
-        if self.thread is not None:
-            self.thread.join()  # Ensure thread joins before exiting
+        # if self.thread is not None:
+        #     self.thread.join()  # Ensure thread joins before exiting
 
 def ocr_pipeline(
     frame,
@@ -64,31 +67,30 @@ def ocr_pipeline(
     right_arm_queue,
     debug=False):
     
-    while True:
-        """Multiprocessing function to read the
-        screen capture and detect text."""
+    """Multiprocessing function to read the
+    screen capture and detect text."""
 
-        # Convert to grayscale for better imaging
-        gray = get_grayscale_image(frame)
+    # Convert to grayscale for better imaging
+    gray = get_grayscale_image(frame)
 
-        # Crop the images
-        cropped_image_bottom = crop_bottom_center(gray)
-        cropped_image_topright = crop_top_right(gray)
+    # Crop the images
+    cropped_image_bottom = crop_bottom_center(gray)
+    cropped_image_topright = crop_top_right(gray)
 
-        # Use OCR to read the bottom command and reward text.
-        command_text_bottom, bbox_bottom_text = get_interaction_text(
-            ocr_model, cropped_image_bottom, action_dict)
-        reward_text_topright, _ = get_interaction_text(
-            ocr_model, cropped_image_topright, action_dict)
+    # Use OCR to read the bottom command and reward text.
+    command_text_bottom, bbox_bottom_text = get_interaction_text(
+        ocr_model, cropped_image_bottom, action_dict)
+    reward_text_topright, _ = get_interaction_text(
+        ocr_model, cropped_image_topright, action_dict)
 
+    # Place the detected commands into the right arm queue
+    if command_text_bottom and debug:
+        right_arm_queue.put(command_text_bottom)
+        print(f"EYES|OCR\tCommand Detected: {command_text_bottom}")
 
-        # Place the detected commands into the right arm queue
-        if command_text_bottom and debug:
-            right_arm_queue.put(command_text_bottom)
-            print(f"EYES|OCR\tCommand Detected: {command_text_bottom}")
-        print("OCR Complete")
-        #TODO; instead of returning arms queue, add detected commands
-        # to the brain queue ONLY to have the brain decide what to do.
+    print("OCR Complete")
+    #TODO; instead of returning arms queue, add detected commands
+    # to the brain queue ONLY to have the brain decide what to do.
 
 def get_interaction_text(reader: easyocr.Reader, image, command_dict):
     """Read the text from the given screencapture frame/image and return key."""

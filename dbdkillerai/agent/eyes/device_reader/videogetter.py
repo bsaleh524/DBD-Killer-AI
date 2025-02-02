@@ -50,8 +50,8 @@ class VideoGetter:
     def stop(self):
         self.stopped = True
         self.stream.release()
-        if self.thread is not None:
-            self.thread.join()
+        # if self.thread is not None:
+        #     self.thread.join()
     
     def get_fps(self):
         return self.stream.get(cv2.CAP_PROP_FPS)

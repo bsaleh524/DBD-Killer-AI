@@ -28,8 +28,8 @@ class RightArmWorker:
 
     def stop(self):
         self.stopped = True
-        if self.thread is not None:
-            self.thread.join()  # Ensure thread joins before exiting
+        # if self.thread is not None:
+        #     self.thread.join()  # Ensure thread joins before exiting
 
 
 # Task 1: Arms (Continuously processes commands)

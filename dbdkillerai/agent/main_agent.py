@@ -13,10 +13,12 @@ if parse_version(pil.__version__)>=parse_version('10.0.0'):
 from dbdkillerai.agent.eyes.ocr.text_reader import (
     setup_camera, setup_reader, get_state_commands,
     )
-from dbdkillerai.agent.arms.right_arm import right_arm_worker, RightArmWorker
-from dbdkillerai.agent.legs.legs import vertical_legs_worker, horizontal_legs_worker, VerticalLegsWorker, HorizontalLegsWorker
-from dbdkillerai.agent.eyes.ocr.text_reader import ocr_pipeline, OCRPipelineWorker
+from dbdkillerai.agent.arms.right_arm import RightArmWorker
+from dbdkillerai.agent.legs.legs import VerticalLegsWorker, HorizontalLegsWorker
+from dbdkillerai.agent.eyes.ocr.text_reader import OCRPipelineWorker
 from dbdkillerai.agent.eyes.device_reader.videogetter import VideoGetter
+from dbdkillerai.agent.brain.motor import MotorWorker
+
 import faulthandler
 faulthandler.enable()
 
@@ -174,6 +176,9 @@ class Agent:
         self.state = SurveyState()
 
         # Setup our queues and threads for limbs
+        self.motor_queue = queue.Queue()
+        self.motor_thread = MotorWorker()
+
         self.right_arm_queue = queue.Queue()
         self.right_arm_thread = RightArmWorker()
         
@@ -240,11 +245,12 @@ class Agent:
         self.right_arm_thread.start(self.right_arm_queue)  # Start Right Arm/Main Attack/M1
         self.vertical_legs_thread.start(self.vertical_legs_queue)  # Start Vertical Legs/ "w" and "s"
         self.horizontal_legs_thread.start(self.horizontal_legs_queue)  # Start Horizontal Legs/ "a" and "d"
-        # self.read_input_thread.start()  # Start Screen Capture for YOLO and OCR Queueing
-        video_getter.start()
+        video_getter.start() # Start Screen Capture for YOLO and OCR Queueing
+        self.ocr_multiproc_thread.start()  # Start OCR Processing for text detection
+        self.motor_thread.start(self.motor_queue, self.right_arm_queue)  # Start Motor Worker for sending commands to limbs
 
         # Start off multiprocessing
-        self.ocr_multiproc_thread.start()  # Start OCR Processing for text detection
+        #TODO: Put OCR here
         
         sleep(3)
         print("Agent is Ready!")

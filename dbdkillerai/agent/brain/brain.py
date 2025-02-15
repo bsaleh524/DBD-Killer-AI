@@ -8,3 +8,7 @@ def reward_function():
 def decision_making():
     pass
 
+def send_to_right_arm():
+    """Send the decision to the right arm."""
+    
+    pass

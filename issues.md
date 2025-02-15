@@ -76,4 +76,6 @@ Agent Behavior:
 
 
 - exploration is done. Cleanup above, then look into training and result model part.
-- the ocrpipeline is still not properly closing. 
+
+2/15:
+- the ocrpipeline is still not properly closing. This is causing everything to just hold, so we have to force a ctrl+c every time.

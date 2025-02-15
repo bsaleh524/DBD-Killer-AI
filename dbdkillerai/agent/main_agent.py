@@ -252,7 +252,6 @@ class Agent:
         ## Possible race condition. queues empty before while loop
         while True:
             # Capture the next frame n the screen queue
-            # print(f"tryin to get frame from screen_queue of size {self.screen_queue.qsize()}")
             frame = video_getter.queue.get() 
             frame_count += 1
 

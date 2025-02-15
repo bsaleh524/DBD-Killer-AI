@@ -76,3 +76,4 @@ Agent Behavior:
 
 
 - exploration is done. Cleanup above, then look into training and result model part.
+- the ocrpipeline is still not properly closing. 

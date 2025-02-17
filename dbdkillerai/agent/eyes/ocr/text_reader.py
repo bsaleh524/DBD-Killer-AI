@@ -29,7 +29,7 @@ class OCRPipelineWorker:
     def __init__(self,
                  ocr_queue: Queue,
                  action_dict: dict,
-                 arm_queue: Queue,
+                 brain_queue: Queue,
                  debug: bool = False
                 ):
         self.stopped = False
@@ -37,7 +37,7 @@ class OCRPipelineWorker:
         self.ocr_queue = ocr_queue
         self.thread = Thread(target=self.get, args=(self.ocr_queue,
                                                     action_dict,
-                                                    arm_queue,
+                                                    brain_queue,
                                                     debug))
 
     def start(self,):
@@ -45,7 +45,7 @@ class OCRPipelineWorker:
         self.thread.start()
 
     #TODO: Remove arm queue later
-    def get(self, ocr_queue, action_dict, arm_queue, debug):
+    def get(self, ocr_queue, action_dict, brain_queue, debug):
         "Complete OCR on Bottom and Topright, given by brain."
         while not self.stopped:
             print("OCR Worker running...")
@@ -56,7 +56,7 @@ class OCRPipelineWorker:
             ocr_pipeline(frame=current_frame,
                         action_dict=action_dict,
                         ocr_model=self.ocr_model,
-                        right_arm_queue=arm_queue,
+                        brain_queue=brain_queue,
                         debug=debug)
         print("OCR Worker stopped.")
 
@@ -72,7 +72,7 @@ def ocr_pipeline(
     frame,
     action_dict,
     ocr_model,
-    right_arm_queue,
+    brain_queue,
     debug=False):
     
     """Multiprocessing function to read the
@@ -93,9 +93,9 @@ def ocr_pipeline(
 
     # Place the detected commands into the right arm queue
     if command_text_bottom:
-        right_arm_queue.put(command_text_bottom)
+        brain_queue.put(command_text_bottom)
         if debug:
-            print(f"EYES|OCR\tCommand Detected: {command_text_bottom}")
+            print(f"EYES || OCR | Command Detected: {command_text_bottom}")
 
     print("OCR Complete")
     #TODO; instead of returning arms queue, add detected commands

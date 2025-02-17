@@ -18,6 +18,7 @@ from dbdkillerai.agent.legs.legs import VerticalLegsWorker, HorizontalLegsWorker
 from dbdkillerai.agent.eyes.ocr.text_reader import OCRPipelineWorker
 from dbdkillerai.agent.eyes.device_reader.videogetter import VideoGetter
 from dbdkillerai.agent.brain.motor import MotorWorker
+from dbdkillerai.agent.brain.brain import BrainWorker
 
 import faulthandler
 faulthandler.enable()
@@ -176,6 +177,9 @@ class Agent:
         self.state = SurveyState()
 
         # Setup our queues and threads for limbs
+        self.brain_queue = queue.Queue()
+        self.brain_thread = BrainWorker()
+
         self.motor_queue = queue.Queue()
         self.motor_thread = MotorWorker()
 
@@ -192,7 +196,7 @@ class Agent:
         self.ocr_multiproc_thread = OCRPipelineWorker(
             ocr_queue=self.ocr_queue,
             action_dict=self.action_dict,
-            arm_queue=self.right_arm_queue,
+            brain_queue=self.brain_queue,
             debug=True)
 
     def switch_to_survey(self):
@@ -211,8 +215,16 @@ class Agent:
         self.vertical_legs_thread.stop()
         self.horizontal_legs_thread.stop()
         self.ocr_multiproc_thread.stop()
+        self.brain_thread.thread.stop()
+        self.motor_thread.thread.stop()
         print("Stopping all threads...")
         
+        print("Joining brain_thread...")
+        if self.brain_thread.thread is not None:
+            self.brain_thread.thread.join()
+        print("Joining motor_thread...")
+        if self.motor_thread.thread is not None:
+            self.motor_thread.thread.join()
         print("Joining right_arm_thread...")
         if self.right_arm_thread.thread is not None:
             self.right_arm_thread.thread.join()
@@ -240,17 +252,26 @@ class Agent:
         )
         self.fps = video_getter.get_fps()
 
-        # Start all threads
+        ## Start all threads
+        # Start the Brain and Motor
         print("Starting all threads and processes...")
+        self.motor_thread.start(self.motor_queue, self.right_arm_queue)  # Start Motor Worker for sending commands to limbs
+        self.brain_thread.start(self.brain_queue, self.motor_queue)  # Start Brain Worker for decision making
+
+        # Start the OCR and Eyes
+        video_getter.start() # Start Screen Capture for YOLO and OCR Queueing
+        self.ocr_multiproc_thread.start()  # Start OCR Processing for text detection
+
+        # Start the Limbs
         self.right_arm_thread.start(self.right_arm_queue)  # Start Right Arm/Main Attack/M1
         self.vertical_legs_thread.start(self.vertical_legs_queue)  # Start Vertical Legs/ "w" and "s"
         self.horizontal_legs_thread.start(self.horizontal_legs_queue)  # Start Horizontal Legs/ "a" and "d"
-        video_getter.start() # Start Screen Capture for YOLO and OCR Queueing
-        self.ocr_multiproc_thread.start()  # Start OCR Processing for text detection
-        self.motor_thread.start(self.motor_queue, self.right_arm_queue)  # Start Motor Worker for sending commands to limbs
-
+        
+        
+        
+        
         # Start off multiprocessing
-        #TODO: Put OCR here
+        #TODO: Put OCR here and brain here. Then, we can start the agent.
         
         sleep(3)
         print("Agent is Ready!")
@@ -282,6 +303,7 @@ class Agent:
                 label = f"{self.obj_det.names[cls]} {conf:.2f}"
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
             # Display the updated frame
             cv2.imshow('Camera Feed - Press q to exit', frame)
 
@@ -289,7 +311,7 @@ class Agent:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("Quit Detected. Starting Shutdown...")
                 video_getter.stop()
-                print("Stopped VIdeo getter. Joining...")
+                print("Stopped Video getter. Joining...")
                 video_getter.thread.join()
                 print("Video getter joined! Continuing stop threads.")
                 self.stop_all_threads()
@@ -309,7 +331,8 @@ def main() -> None:
     killer = Agent(yolo_model_path="dbdkillerai/models/dataset/9/best.pt",
                    test_image=test_image,
                    device_index=0,
-                   quality_preset=1)
+                   quality_preset=1,
+                   frame_check_multiplier=1.3)
     killer.run_agent()
     
 if __name__ == "__main__":

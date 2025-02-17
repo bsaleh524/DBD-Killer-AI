@@ -23,6 +23,7 @@ class RightArmWorker:
         while not self.stopped:
             current_command = queue.get()
             if current_command:
+                print("R-ARM || Motor commanded me to do: ", current_command)
                 pyautogui.leftClick(duration=click_duration)
         print("Right Arm Worker stopped.")
 

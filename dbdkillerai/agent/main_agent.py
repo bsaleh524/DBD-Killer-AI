@@ -5,6 +5,7 @@ import torch
 import cv2
 import queue
 import threading
+from multiprocessing import Queue as mpQueue
 from PIL import Image as pil
 from pkg_resources import parse_version
 if parse_version(pil.__version__)>=parse_version('10.0.0'):
@@ -13,7 +14,8 @@ if parse_version(pil.__version__)>=parse_version('10.0.0'):
 from dbdkillerai.agent.eyes.ocr.text_reader import (
     setup_camera, setup_reader, get_state_commands,
     )
-from dbdkillerai.agent.arms.right_arm import RightArmWorker
+# from dbdkillerai.agent.arms.right_arm import RightArmWorker
+from dbdkillerai.agent.arms.right_arm_multiproc import RightArmWorker_MP
 from dbdkillerai.agent.legs.legs import VerticalLegsWorker, HorizontalLegsWorker
 from dbdkillerai.agent.eyes.ocr.text_reader import OCRPipelineWorker
 from dbdkillerai.agent.eyes.device_reader.videogetter import VideoGetter
@@ -183,8 +185,8 @@ class Agent:
         self.motor_queue = queue.Queue()
         self.motor_thread = MotorWorker()
 
-        self.right_arm_queue = queue.Queue()
-        self.right_arm_thread = RightArmWorker()
+        self.right_arm_queue = mpQueue()
+        self.right_arm_thread = RightArmWorker_MP(self.right_arm_queue)
         
         self.vertical_legs_queue = queue.Queue()
         self.vertical_legs_thread = VerticalLegsWorker()
@@ -263,7 +265,7 @@ class Agent:
         self.ocr_multiproc_thread.start()  # Start OCR Processing for text detection
 
         # Start the Limbs
-        self.right_arm_thread.start(self.right_arm_queue)  # Start Right Arm/Main Attack/M1
+        self.right_arm_thread.start()  # Start Right Arm/Main Attack/M1
         self.vertical_legs_thread.start(self.vertical_legs_queue)  # Start Vertical Legs/ "w" and "s"
         self.horizontal_legs_thread.start(self.horizontal_legs_queue)  # Start Horizontal Legs/ "a" and "d"
         

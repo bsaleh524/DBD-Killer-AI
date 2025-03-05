@@ -270,8 +270,6 @@ class Agent:
         self.horizontal_legs_thread.start(self.horizontal_legs_queue)  # Start Horizontal Legs/ "a" and "d"
         
         
-        
-        
         # Start off multiprocessing
         #TODO: Put OCR here and brain here. Then, we can start the agent.
         

@@ -50,7 +50,7 @@ def right_arm_worker(arms_queue):
 if __name__ == "__main__":
     # Test out the arm swing
     # Create queues for Arms and Legs commands
-    arms_queue = queue.Queue()
+    arms_queue = Queue()
 
     # Create threads for Arms and Legs
     arms_thread = threading.Thread(target=right_arm_worker,

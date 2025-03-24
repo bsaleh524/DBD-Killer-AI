@@ -1,3 +1,15 @@
+3/23/2025 -- pivoted to SuperHexagon for now.
+Hey Basem! It's been awhile. I hope you uploaded or learned from the previous hexagon or other experiemnt. Remember, you need to walk before you run.
+
+The branch with your work is on: 38-implement-brain-to-pass-arm-commands-to-after-processing
+
+So, with this version, we had a few things we couldnt quite do properly. We wanted to complete the thread of using the capture card on a youtube video, and then showing the text "DAMAGE" on the bottom of the screen and in doing so, the Desktop PC would send the `space` command from `pyautogui` to the macbook(but also the PC).
+
+The problem arose because WSL2 doesn't like when we are trying to do keyboard commands whislt having threads. I think it worked fine if it was just one thread within the `main_agent.py` script. But since we have multiple theads for different limbs, with different queues everywhere, we tried reinstalling this on windows. We were almost there to test it, but CUDA is giving us issues and the windows machine refuses to pick it up. 
+
+I would suggest giving the environment another install from conda. Obviously, double check your cuda, but once that's good, give it a go and see if it works. And by works, i mean runnign a youtube video with the capture card. If that works, you are golden my friend. All you need for this branch is final cleanup.
+
+
 Dead By Daylight Killer AI
 ==============================
 

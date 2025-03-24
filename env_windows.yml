@@ -1,0 +1,30 @@
+name: dbd_ai
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11.8
+  - pillow=9.4.0
+  - ipykernel
+  - ipywidgets
+  - click
+  - pip
+  - pip:
+    # Install PyTorch nightly using the correct index URL and --pre flag
+    - torch
+    - torchvision
+    - torchaudio
+    - --index-url https://download.pytorch.org/whl/cu126
+      # Install Roboflow from PyPI (default index)
+  - pip:
+    - pyautogui
+    - roboflow
+    - supervision
+    - ultralytics
+    - easyocr
+    # - opencv-python==4.9.0.80
+
+# For the MacBook
+# conda env remove -n dbd_ai #--all?
+# conda env create -f env_windows.yml
+# conda activate dbd_ai

@@ -1,24 +1,14 @@
-3/23/2025 -- pivoted to SuperHexagon for now.
-Hey Basem! It's been awhile. I hope you uploaded or learned from the previous hexagon or other experiemnt. Remember, you need to walk before you run.
-
-The branch with your work is on: 38-implement-brain-to-pass-arm-commands-to-after-processing
-
-So, with this version, we had a few things we couldnt quite do properly. We wanted to complete the thread of using the capture card on a youtube video, and then showing the text "DAMAGE" on the bottom of the screen and in doing so, the Desktop PC would send the `space` command from `pyautogui` to the macbook(but also the PC).
-
-The problem arose because WSL2 doesn't like when we are trying to do keyboard commands whislt having threads. I think it worked fine if it was just one thread within the `main_agent.py` script. But since we have multiple theads for different limbs, with different queues everywhere, we tried reinstalling this on windows. We were almost there to test it, but CUDA is giving us issues and the windows machine refuses to pick it up. 
-
-I would suggest giving the environment another install from conda. Obviously, double check your cuda, but once that's good, give it a go and see if it works. And by works, i mean runnign a youtube video with the capture card. If that works, you are golden my friend. All you need for this branch is final cleanup.
-
-
 Dead By Daylight Killer AI
 ==============================
+
+3/23/25: refer to bottom of readme
 
 <img src="references/figures/yolov8_train8.gif" width=700>
 
 
 An Object detection and tracking model for a killer in Dead by Daylight. This repo's goal is stand up an AI that will hunt, chase, kill, and hook survivors that are identified while navigating between generators without any human input. 
 
-Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. Labeling was done manually through [Roboflow](roboflow.com). Text detection is accomplished using [EasyOCR](https://github.com/JaidedAI/EasyOCR).
+Object detection is done using a [Yolov8](https://docs.ultralytics.com/) model. Labeling was done manually through [Roboflow](roboflow.com). Text detection is accomplished using [EasyOCR](https://github.com/JaidedAI/EasyOCR). Environment for OpenAI Gymnassium and actual RL agent are not setup yet.
 
 
 ## Milestones
@@ -143,6 +133,19 @@ Use the `test_ocr.py` script located in the `test/` folder to ensure the agent p
 And, now that you have the camera module, the Agent relies entirely on the fact that you should have only one camera/capture card connected, which is what you just attached and tested. 
 
 Connect the Macbook to the PC using the USB capture card as a device input. Load the game on the Mac's newest screen. Then, run `main_agent.py`. An easy test before running the game on NVIDIA GeForce NOW is to use a Youtube video.
+
+----
+3/23/2025 -- pivoted to SuperHexagon for now.
+Hey Basem! It's been awhile. I hope you uploaded or learned from the previous hexagon or other experiemnt. Remember, you need to walk before you run.
+
+The branch with your work is on: 38-implement-brain-to-pass-arm-commands-to-after-processing
+
+So, with this version, we had a few things we couldnt quite do properly. We wanted to complete the thread of using the capture card on a youtube video, and then showing the text "DAMAGE" on the bottom of the screen and in doing so, the Desktop PC would send the `space` command from `pyautogui` to the macbook(but also the PC).
+
+The problem arose because WSL2 doesn't like when we are trying to do keyboard commands whislt having threads. I think it worked fine if it was just one thread within the `main_agent.py` script. But since we have multiple theads for different limbs, with different queues everywhere, we tried reinstalling this on windows. We were almost there to test it, but CUDA is giving us issues and the windows machine refuses to pick it up. 
+
+I would suggest giving the environment another install from conda. Obviously, double check your cuda, but once that's good, give it a go and see if it works. And by works, i mean runnign a youtube video with the capture card. If that works, you are golden my friend. All you need for this branch is final cleanup.
+----
 
 -----------
 Project Organization

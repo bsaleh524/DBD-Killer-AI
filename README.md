@@ -147,6 +147,11 @@ The problem arose because WSL2 doesn't like when we are trying to do keyboard co
 I would suggest giving the environment another install from conda. Obviously, double check your cuda, but once that's good, give it a go and see if it works. And by works, i mean runnign a youtube video with the capture card. If that works, you are golden my friend. All you need for this branch is final cleanup.
 ----
 
+09/10/25 -- Just a quick note
+
+I'm just coming back and reading this right now after many months. What if instead of doing multiple threads, is it possible to actually just execute each sequence of actions in a row? Like pressing the `W` key, `A` key, and moving the mouse a bit to the left. Let's assume that currently, it doesn't fully need to be in parallel and we can just do it as is, in order!
+Also, the brain will house the policy. Also, we may not need to even do that bounding box closeness issue, i think(?). If it'll learn from an image, then maybe we dont need to worry about that? Or maybe not. I could be wrong.
+
 -----------
 Project Organization
 ------------
